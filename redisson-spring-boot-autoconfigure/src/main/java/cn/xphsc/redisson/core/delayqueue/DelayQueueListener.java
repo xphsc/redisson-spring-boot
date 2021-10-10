@@ -25,5 +25,4 @@ public interface DelayQueueListener<M> {
 
     void onMessage(M message);
 
-    String queueName();
 }

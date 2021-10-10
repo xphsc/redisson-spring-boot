@@ -22,6 +22,7 @@ import cn.xphsc.redisson.core.distributedlock.advice.RedissonLockRegistrar;
 import cn.xphsc.redisson.core.distributedlock.lock.RedissonLockFactory;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -51,10 +52,12 @@ public class RedissonLockAutoConfiguration implements Ordered {
     }
 
     @Bean
+    @ConditionalOnMissingBean(LockInfoProvider.class)
     public LockInfoProvider lockInfoProvider() {
         return new LockInfoProvider(redissonLockProperties,redissonLockKeyProvider());
     }
    @Bean
+   @ConditionalOnMissingBean(RedissonLockKeyProvider.class)
     public RedissonLockKeyProvider redissonLockKeyProvider() {
         return new RedissonLockKeyProvider();
     }

@@ -53,11 +53,11 @@ public @interface RateLimit {
     /**
      * 限流后的回退后的拒绝逻辑
      */
-    String fallbackFunction() default "";
+    String fallback() default "";
 
     /**
      * 自定义key
      */
-    String customKeyFunction() default "";
+    String customKey() default "";
 
 }

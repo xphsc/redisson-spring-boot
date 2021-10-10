@@ -37,7 +37,7 @@ public class DelayQueueListenerContainer implements SmartLifecycle {
     private boolean running;
     private ExecutorService threadPool;
     private volatile boolean stop = false;
-
+    private String queueName;
     @Override
     public void start() {
         threadPool = new ThreadPoolExecutor(1,
@@ -125,10 +125,12 @@ public class DelayQueueListenerContainer implements SmartLifecycle {
 
 
     public String queueName() {
-        return listener.queueName();
+        return this.queueName;
     }
 
-
+    public void setQueueName(String queueName) {
+        this.queueName = queueName;
+    }
 
     public boolean isAutoStartup() {
         return false;

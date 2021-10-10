@@ -38,6 +38,10 @@ public class RedissonTemplate {
         this.redissonClient = redissonClient;
     }
 
+    public RedissonClient getRedissonClient() {
+        return redissonClient;
+    }
+
     /**
      * 获取对象值
      */
@@ -108,14 +112,12 @@ public class RedissonTemplate {
 
     /**
      * 设置map集合
-     * @param name
-     * @param data
      * @param time 缓存时间,单位毫秒 -1永久缓存
      */
-    public void setMapValues(String name, Map data, Long time){
+    public void setMapValues(String name, Map value, Long time){
         RMap map = redissonClient.getMap(name);
             map.expire(time, TimeUnit.MILLISECONDS);
-            map.putAll(data);
+            map.putAll(value);
     }
 
 
@@ -129,14 +131,12 @@ public class RedissonTemplate {
 
     /**
      * 设置List集合
-     * @param name
-     * @param data
      * @param time 缓存时间,单位毫秒 -1永久缓存
      */
-    public void setListValues(String name, List data, Long time) {
+    public void setListValues(String name, List ListValue, Long time) {
         RList list = redissonClient.getList(name);
             list.expire(time, TimeUnit.MILLISECONDS);
-            list.addAll(data);
+            list.addAll(ListValue);
     }
     /**
      * 获取set集合
@@ -150,23 +150,20 @@ public class RedissonTemplate {
 
     /**
      * 设置set集合
-     * @param name
-     * @param data
      * @param time 缓存时间,单位毫秒 -1永久缓存
      */
-    public void setSetValues(String name, Set data, Long time){
+    public void setSetValues(String name, Set value, Long time){
         RSet set = redissonClient.getSet(name);
         if(time!=-1){
             set.expire(time, TimeUnit.MILLISECONDS);
         }
-        set.addAll(data);
+        set.addAll(value);
     }
     /**
      * 获取输出流
      * @param name
      */
     public OutputStream getOutputStream(String name) {
-        RListMultimap<Object, Object> listMultimap = redissonClient.getListMultimap("");
         RBinaryStream binaryStream = redissonClient.getBinaryStream(name);
         return binaryStream.getOutputStream();
     }
@@ -234,6 +231,42 @@ public class RedissonTemplate {
     public boolean streamDelete(String name) {
         RBinaryStream binaryStream = redissonClient.getBinaryStream(name);
         return binaryStream.delete();
+    }
+
+    public RLock lock(String lockKey) {
+        RLock lock = redissonClient.getLock(lockKey);
+        lock.lock();
+        return lock;
+    }
+
+    public RLock lock(String lockKey, int leaseTime) {
+        RLock lock = redissonClient.getLock(lockKey);
+        lock.lock(leaseTime, TimeUnit.SECONDS);
+        return lock;
+    }
+
+    public RLock lock(String lockKey, TimeUnit unit , int timeout) {
+        RLock lock = redissonClient.getLock(lockKey);
+        lock.lock(timeout, unit);
+        return lock;
+    }
+
+    public boolean tryLock(String lockKey, TimeUnit unit, int waitTime, int leaseTime) {
+        RLock lock = redissonClient.getLock(lockKey);
+        try {
+            return lock.tryLock(waitTime, leaseTime, unit);
+        } catch (InterruptedException e) {
+            return false;
+        }
+    }
+
+    public void unlock(String lockKey) {
+        RLock lock = redissonClient.getLock(lockKey);
+        lock.unlock();
+    }
+
+    public void unlock(RLock lock) {
+        lock.unlock();
     }
 
 

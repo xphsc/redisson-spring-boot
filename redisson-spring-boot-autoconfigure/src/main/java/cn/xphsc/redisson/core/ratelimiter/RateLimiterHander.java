@@ -43,9 +43,9 @@ public class RateLimiterHander {
     public RateLimiterInfo getRateLimiterInfo(Method method, Object target, Object[] args, RateLimit rateLimit) {
         String businessKeyName = ratelimitProvider.getKeyName(method,args,target, rateLimit);
         String rateLimitKey = getName(method) + businessKeyName;
-        if (StringUtils.hasLength(rateLimit.customKeyFunction())) {
+        if (StringUtils.hasLength(rateLimit.customKey())) {
             try {
-                rateLimitKey = getName(method) + this.executeFunction(rateLimit.customKeyFunction(), method,target,args).toString();
+                rateLimitKey = getName(method) + this.executeFunction(rateLimit.customKey(), method,target,args).toString();
             } catch (Throwable throwable) {
                 logger.info("Gets the custom Key exception and degrades it to the default Key:{}", rateLimit, throwable);
             }

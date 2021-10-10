@@ -61,8 +61,8 @@ public class RateLimitMethodInterceptor implements MethodInterceptor {
         boolean allowed = results.get(0) == 0L;
         if (!allowed) {
             logger.info("Trigger current limiting,key:{}", limiterInfo.getKey());
-            if (StringUtils.hasLength(rateLimit.fallbackFunction())) {
-                return rateLimiterHander.executeFunction(rateLimit.fallbackFunction(), methodInvocation.getMethod(),methodInvocation.getThis(),methodInvocation.getArguments());
+            if (StringUtils.hasLength(rateLimit.fallback())) {
+                return rateLimiterHander.executeFunction(rateLimit.fallback(), methodInvocation.getMethod(),methodInvocation.getThis(),methodInvocation.getArguments());
             }
             long ttl = results.get(1);
             throw new RateLimitException("Too Many Requests", ttl);

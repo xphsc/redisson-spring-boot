@@ -23,6 +23,8 @@ import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.GenericApplicationContext;
+import org.springframework.stereotype.Component;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
@@ -32,14 +34,16 @@ public class DelayQueueListenerRegistry implements ApplicationContextAware, Smar
     private final Map<String, DelayQueueListener> delayQueueListeners = new HashMap<>();
     private AtomicLong counter = new AtomicLong(0);
     private final RedissonClient redissonClient;
-
+    private String queueName;
     public DelayQueueListenerRegistry(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }
 
     public void registerListener(DelayQueueListener listener) {
-        if (delayQueueListeners.putIfAbsent(listener.queueName(), listener) != null) {
-            throw new RuntimeException(String.format("Delay queue name:{} already registered", listener.queueName()));
+        cn.xphsc.redisson.annotation.RedissonDelayQueryListener redissonDelayQueryListener=  listener.getClass().getAnnotation(cn.xphsc.redisson.annotation.RedissonDelayQueryListener.class);
+        this.queueName=redissonDelayQueryListener.queueName();
+        if (delayQueueListeners.putIfAbsent(queueName, listener) != null) {
+            throw new RuntimeException(String.format("Delay queue name:{} already registered", queueName));
         }
     }
 
@@ -56,6 +60,7 @@ public class DelayQueueListenerRegistry implements ApplicationContextAware, Smar
         DelayQueueListenerContainer delayQueueListenerContainer=createListenerContainer(containerBeanName, delayQueueListener);
         beanDefinitionBuilder.addPropertyValue("distinationQueue",delayQueueListenerContainer.getDistinationQueue());
         beanDefinitionBuilder.addPropertyValue("listener",delayQueueListenerContainer.getListener());
+        beanDefinitionBuilder.addPropertyValue("queueName",delayQueueListenerContainer.queueName());
         genericApplicationContext.registerBeanDefinition(containerBeanName,beanDefinitionBuilder.getBeanDefinition());
         DelayQueueListenerContainer container = genericApplicationContext.getBean(containerBeanName,
                 DelayQueueListenerContainer.class);
@@ -70,8 +75,9 @@ public class DelayQueueListenerRegistry implements ApplicationContextAware, Smar
 
     private DelayQueueListenerContainer createListenerContainer(String containerBeanName, DelayQueueListener delayQueueListener) {
         DelayQueueListenerContainer delayQueueListenerContainer = new DelayQueueListenerContainer();
-        delayQueueListenerContainer.setDistinationQueue(redissonClient.getBlockingDeque(delayQueueListener.queueName()));
+        delayQueueListenerContainer.setDistinationQueue(redissonClient.getBlockingDeque(queueName));
         delayQueueListenerContainer.setListener(delayQueueListener);
+        delayQueueListenerContainer.setQueueName(queueName);
         return delayQueueListenerContainer;
     }
 

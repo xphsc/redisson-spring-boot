@@ -40,8 +40,6 @@ public class RedissonLockRegistrar implements ImportBeanDefinitionRegistrar  {
         BeanDefinition bd = bdb.getBeanDefinition();
         String beanName = LockPointcutAdvisor.class.getName();
         BeanRegistrarUtils.registerBeanDefinitionIfNotExists(registry, beanName, bd);
-        AopConfigUtils.registerAutoProxyCreatorIfNecessary(registry);
-        AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);
 
     }
 

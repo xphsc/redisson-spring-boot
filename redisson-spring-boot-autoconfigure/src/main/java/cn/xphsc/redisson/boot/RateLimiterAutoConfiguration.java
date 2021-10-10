@@ -21,6 +21,7 @@ import cn.xphsc.redisson.core.ratelimiter.RateLimiterHander;;
 import cn.xphsc.redisson.core.ratelimiter.advice.RateLimitRegistrar;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -45,11 +46,13 @@ import org.springframework.core.Ordered;
 public class RateLimiterAutoConfiguration implements Ordered {
 
     @Bean
+    @ConditionalOnMissingBean(RateLimiterHander.class)
     public RateLimiterHander rateLimiterHander() {
         return new RateLimiterHander(ratelimitProvider());
     }
 
     @Bean
+    @ConditionalOnMissingBean(RatelimitProvider.class)
     public RatelimitProvider ratelimitProvider() {
         return new RatelimitProvider();
     }
