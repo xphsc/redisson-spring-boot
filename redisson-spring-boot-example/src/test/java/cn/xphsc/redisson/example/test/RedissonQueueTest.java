@@ -1,7 +1,8 @@
-package com.xphsc.test.example.queue;
+package cn.xphsc.redisson.example.test;
 
 import cn.xphsc.redisson.core.delayqueue.DelayQueueTemplate;
-import com.xphsc.test.example.ExampleApplication;
+import cn.xphsc.redisson.example.RedissonExampleApplication;
+import cn.xphsc.redisson.example.queue.DelayMessage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,8 +19,8 @@ import java.util.concurrent.TimeUnit;
  * @since 1.0.0
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = ExampleApplication.class)
-public class QueueTest {
+@SpringBootTest(classes = RedissonExampleApplication.class)
+public class RedissonQueueTest {
 
     @Autowired
     private DelayQueueTemplate delayQueueTemplate;

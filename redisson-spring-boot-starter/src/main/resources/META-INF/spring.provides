@@ -1,1 +1,1 @@
-provides: spring-boot,web-spring-boot-autoconfigure
+provides: spring-boot,redisson-spring-boot-autoconfigure

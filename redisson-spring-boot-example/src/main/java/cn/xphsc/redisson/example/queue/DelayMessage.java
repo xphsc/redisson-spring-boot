@@ -1,4 +1,4 @@
-package com.xphsc.test.example.queue;
+package cn.xphsc.redisson.example.queue;
 
 /**
  * {@link }

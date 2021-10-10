@@ -1,5 +1,4 @@
-package com.xphsc.test.example.service.impl;
-
+package cn.xphsc.redisson.example.service.impl;
 
 
 import cn.xphsc.redisson.annotation.RedissonLock;
@@ -7,7 +6,6 @@ import cn.xphsc.redisson.annotation.RedissonLockKey;
 import cn.xphsc.redisson.core.distributedlock.entity.LockTimeoutStrategy;
 import com.xphsc.test.example.domain.UserVO;
 import com.xphsc.test.example.service.TestService;
-
 import org.springframework.stereotype.Service;
 
 

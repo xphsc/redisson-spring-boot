@@ -1,4 +1,4 @@
-package com.xphsc.test.example.domain;
+package cn.xphsc.redisson.example.domain;
 
 
 

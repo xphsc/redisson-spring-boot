@@ -1,14 +1,12 @@
-package com.xphsc.test.example.controller;
+package cn.xphsc.redisson.example.controller;
 
 
 
-//import cn.xphsc.redisson.annotation.RedissonDelayQueryListener;
-import cn.xphsc.redisson.core.RedissonTemplate;
 import cn.xphsc.redisson.core.delayqueue.DelayQueueTemplate;
-import com.xphsc.test.example.domain.DeptVO;
-import com.xphsc.test.example.domain.UserVO;
-import com.xphsc.test.example.queue.DelayMessage;
-import com.xphsc.test.example.service.TestService;
+import cn.xphsc.redisson.example.domain.DeptVO;
+import cn.xphsc.redisson.example.domain.UserVO;
+import cn.xphsc.redisson.example.queue.DelayMessage;
+import cn.xphsc.redisson.example.service.TestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +16,6 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api")
-//@RedissonDelayQueryListener(queue="delay-message-queue-name")
 public class TestController {
 
     @Autowired
@@ -26,8 +23,6 @@ public class TestController {
 
     @GetMapping
     public String test(String id) {
-     //   Distributed-lock
-//        id = new Random().nextInt(100) + "";
         testService.testLock(id, new UserVO(1L, "zhangsan", 18, new DeptVO(1L, "交易平台")));
         return "ok";
     }

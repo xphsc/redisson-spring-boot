@@ -1,4 +1,4 @@
-package com.xphsc.test.example.queue;
+package cn.xphsc.redisson.example.queue;
 
 import cn.xphsc.redisson.annotation.RedissonDelayQueryListener;
 import cn.xphsc.redisson.core.delayqueue.DelayQueueListener;

@@ -1,4 +1,4 @@
-package com.xphsc.test.example.service;
+package cn.xphsc.redisson.example.service;
 
 
 import com.xphsc.test.example.domain.UserVO;
