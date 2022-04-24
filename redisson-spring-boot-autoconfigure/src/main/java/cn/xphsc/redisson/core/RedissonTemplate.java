@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description: Redisson Template
  * @since 1.0.0
  */
 public class RedissonTemplate {
@@ -38,7 +38,7 @@ public class RedissonTemplate {
         this.redissonClient = redissonClient;
     }
 
-    public RedissonClient getRedissonClient() {
+    public RedissonClient redissonClient() {
         return redissonClient;
     }
 
@@ -133,10 +133,10 @@ public class RedissonTemplate {
      * 设置List集合
      * @param time 缓存时间,单位毫秒 -1永久缓存
      */
-    public void setListValues(String name, List ListValue, Long time) {
+    public void setListValues(String name, List listValue, Long time) {
         RList list = redissonClient.getList(name);
             list.expire(time, TimeUnit.MILLISECONDS);
-            list.addAll(ListValue);
+            list.addAll(listValue);
     }
     /**
      * 获取set集合
@@ -170,7 +170,6 @@ public class RedissonTemplate {
     /**
      * 获取输入流
      * @param name
-     * @return
      */
     public InputStream getInputStream(String name) {
         RBinaryStream binaryStream = redissonClient.getBinaryStream(name);
@@ -269,5 +268,24 @@ public class RedissonTemplate {
         lock.unlock();
     }
 
+    public <V>  RBloomFilter<V> bloomFilter(String name) {
+        RBloomFilter<V> bloomFilter = redissonClient.getBloomFilter(name);
+        return bloomFilter;
+    }
 
+    public <V> RSortedSet<V> sortedSet(String name) {
+        RSortedSet<V> rSortedSet = redissonClient.getSortedSet( name);
+        return rSortedSet;
+    }
+
+
+    public <V> RSetCache<V> setCache(String name) {
+        RSetCache<V> rSortedSet = redissonClient.getSetCache( name);
+        return rSortedSet;
+    }
+
+    public <V> RGeo<V> geo(String name) {
+        RGeo<V> rGeo = redissonClient.getGeo( name);
+        return rGeo;
+    }
 }

@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description: 获取用户定义业务key
+ * @description: Get user-defined business key
  * @since 1.0.0
  */
 public class RedissonLockKeyProvider {
@@ -50,8 +50,8 @@ public class RedissonLockKeyProvider {
     public String getKeyName(Method method, Object target, Object[] args, RedissonLock distributedLock) {
         List<String> keyList = new ArrayList<String>();
          method = getMethod(method,target);
-        List<String> definitionKeys = getSpelDefinitionKey(distributedLock.keys(), method, args);
-        keyList.addAll(definitionKeys);
+             List<String> definitionKeys = getSpelDefinitionKey(distributedLock.keys(), method, args);
+             keyList.addAll(definitionKeys);
         List<String> parameterKeys = getParameterKey(method.getParameters(), args);
         keyList.addAll(parameterKeys);
         return StringUtils.collectionToDelimitedString(keyList,"","-","");
@@ -74,11 +74,13 @@ public class RedissonLockKeyProvider {
 
     private List<String> getSpelDefinitionKey(String[] definitionKeys, Method method, Object[] parameterValues) {
         List<String> definitionKeyList = new ArrayList<>();
-        for (String definitionKey : definitionKeys) {
-            if (definitionKey != null && !definitionKey.isEmpty()) {
-                EvaluationContext context = new MethodBasedEvaluationContext(null, method, parameterValues, nameDiscoverer);
-                String key = parser.parseExpression(definitionKey).getValue(context).toString();
-                definitionKeyList.add(key);
+        if(definitionKeys!=null){
+            for (String definitionKey : definitionKeys) {
+                if (definitionKey != null && !definitionKey.isEmpty()) {
+                    EvaluationContext context = new MethodBasedEvaluationContext(null, method, parameterValues, nameDiscoverer);
+                    String key = parser.parseExpression(definitionKey).getValue(context).toString();
+                    definitionKeyList.add(key);
+                }
             }
         }
         return definitionKeyList;
@@ -90,7 +92,9 @@ public class RedissonLockKeyProvider {
             if (parameters[i].getAnnotation(RedissonLockKey.class) != null) {
                 RedissonLockKey keyAnnotation = parameters[i].getAnnotation(RedissonLockKey.class);
                 if (keyAnnotation.value().isEmpty()) {
-                    parameterKey.add(parameterValues[i].toString());
+                    if(parameterValues[i]!=null){
+                        parameterKey.add(parameterValues[i].toString());
+                    }
                 } else {
                     StandardEvaluationContext context = new StandardEvaluationContext(parameterValues[i]);
                     String key = parser.parseExpression(keyAnnotation.value()).getValue(context).toString();

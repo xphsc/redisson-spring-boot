@@ -24,7 +24,12 @@ import java.lang.annotation.Target;
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description: 锁注解key
+ * For reference, the example
+ * @RedissonLock(name = "test-lock", waitTime = 2, lockTimeoutStrategy = LockTimeoutStrategy.FAIL_FAST)
+ * public void testLock(@RedissonLockKey String id) {}
+ *  @RedissonLock(name = "test-lock")
+ * public void testLock(String id, @RedissonLockKey("user.id") User user) { }
  * @since 1.0.0
  */
 @Target(value = {ElementType.PARAMETER, ElementType.TYPE})

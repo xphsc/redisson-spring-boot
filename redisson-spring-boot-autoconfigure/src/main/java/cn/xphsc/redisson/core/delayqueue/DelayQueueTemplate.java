@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description:  Dead letter queue template
  * @since 1.0.0
  */
 public class DelayQueueTemplate<S> {
@@ -61,6 +61,7 @@ public class DelayQueueTemplate<S> {
     public S receive(String queueName) {
         S currentMessage = null;
         final RBlockingDeque<S> distinationQueue = redissonClient.getBlockingDeque(queueName);
+         redissonClient.getDelayedQueue(distinationQueue);
         try {
             currentMessage = distinationQueue.take();
         } catch (InterruptedException e) {

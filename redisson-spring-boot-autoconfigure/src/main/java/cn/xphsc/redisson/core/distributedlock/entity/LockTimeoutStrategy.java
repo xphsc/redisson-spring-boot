@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description: Lock timeout policy
  * @since 1.0.0
  */
 public enum LockTimeoutStrategy implements LockTimeoutHandler {

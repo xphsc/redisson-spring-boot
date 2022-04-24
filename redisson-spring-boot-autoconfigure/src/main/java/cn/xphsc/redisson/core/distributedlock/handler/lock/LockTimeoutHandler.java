@@ -24,7 +24,7 @@ import cn.xphsc.redisson.core.distributedlock.lock.Lock;
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description: 获取锁超时的处理逻辑接口
+ * @description: Processing logic interface for obtaining lock timeout
  * @since 1.0.0
  */
 public interface LockTimeoutHandler {

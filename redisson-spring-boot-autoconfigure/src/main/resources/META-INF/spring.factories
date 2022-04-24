@@ -1,5 +1,6 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-cn.xphsc.redisson.boot.RedissonAutoConfiguration,\
-cn.xphsc.redisson.boot.RedissonLockAutoConfiguration,\
-cn.xphsc.redisson.boot.DelayQueueAutoConfiguration,\
-cn.xphsc.redisson.boot.RateLimiterAutoConfiguration
+cn.xphsc.redisson.boot.autoconfigure.RedissonAutoConfiguration,\
+cn.xphsc.redisson.boot.autoconfigure.RedissonLockAutoConfiguration,\
+cn.xphsc.redisson.boot.autoconfigure.DelayQueueAutoConfiguration,\
+cn.xphsc.redisson.boot.autoconfigure.RedissonQueueAutoConfiguration,\
+cn.xphsc.redisson.boot.autoconfigure.RateLimiterAutoConfiguration

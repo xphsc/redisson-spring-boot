@@ -22,7 +22,7 @@ import cn.xphsc.redisson.core.distributedlock.handler.release.ReleaseTimeoutHand
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description: Release strategy
  * @since 1.0.0
  */
 public enum ReleaseTimeoutStrategy implements ReleaseTimeoutHandler {

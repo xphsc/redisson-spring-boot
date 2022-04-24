@@ -23,7 +23,7 @@ import java.lang.annotation.Target;
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description: Current limiting Key
  * @since 1.0.0
  */
 @Target(value = {ElementType.PARAMETER, ElementType.TYPE})

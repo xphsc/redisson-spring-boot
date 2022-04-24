@@ -23,7 +23,13 @@ import java.lang.annotation.Target;
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description: Current limiting rules
+ * For reference, the example
+ * @RateLimit(rate = 1, rateInterval = "10s")
+ *  public String get() {}
+  @RateLimit(rate = 5, rateInterval = "10s",keys = {"#user.name","#user.id"})
+ *  public String hello(User user) { }
+ @see RateLimitKey
  * @since 1.0.0
  */
 @Target(value = {ElementType.METHOD})

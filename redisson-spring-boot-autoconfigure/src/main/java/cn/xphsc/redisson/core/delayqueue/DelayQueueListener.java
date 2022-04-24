@@ -18,7 +18,13 @@ package cn.xphsc.redisson.core.delayqueue;
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description: Dead letter queue listening
+ * For reference, the example
+ * @Component
+ *@RedissonDelayQueueListener(queueName = "delay-message-queue-name")
+ * public class MyDelayQueueListener implements DelayQueueListener<DelayMessage>{
+ *     public void onMessage(DelayMessage delayMessage) {
+ *     }
  * @since 1.0.0
  */
 public interface DelayQueueListener<M> {

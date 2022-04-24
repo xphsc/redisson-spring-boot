@@ -18,7 +18,7 @@ package cn.xphsc.redisson.core.distributedlock.entity;
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description:
+ * @description:  Lock  Builder
  * @since 1.0.0
  */
 public class LockBuilder {

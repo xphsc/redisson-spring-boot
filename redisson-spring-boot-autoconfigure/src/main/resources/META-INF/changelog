@@ -1,0 +1,20 @@
+redisson-spring-boot-autoconfigure 1.x Changelog
+===================================
+Changes in version 1.0.1
+---------------------------------------------
+* fix bug redisson sending messages to dead letter queue,Class has multiple annotations @RedissonDelayQueueListener, and the queue names are different. Multiple queues consume the same message
+* fix  bug  send messages to the reisson queue,Class has multiple annotations @ RedissonQueueListener, and the queue names are different. Multiple queues consume the same message
+---------------------------------------------
+Changes in version 1.0.0
+---------------------------------------------
+* Revised to official version
+* Redisson template adds asynchronous message sending
+---------------------------------------------
+Changes in version 1.0.0-RC
+---------------------------------------------
+* Initialize current limiting assembly
+* Initialize distributed lock components
+* Initialize reidsson components
+* Initialize the dead letter queue component
+* Initialize message queuing components
+---------------------------------------------

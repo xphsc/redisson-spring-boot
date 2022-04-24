@@ -15,9 +15,9 @@
  */
 package cn.xphsc.redisson.core.delayqueue;
 
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-
 
 /**
  * {@link }
@@ -36,9 +36,11 @@ public class DelayQueueListenerBeanProcessor implements BeanPostProcessor {
 
 
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        Class<?> clazz = bean.getClass();
+        this.delayQueueListenerRegistry.registerListener(clazz,beanName);
         return bean;
-    }
 
+    }
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         if (bean instanceof DelayQueueListener) {

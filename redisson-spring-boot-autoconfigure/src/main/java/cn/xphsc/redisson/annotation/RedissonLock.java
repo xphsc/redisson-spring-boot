@@ -30,6 +30,10 @@ import java.lang.annotation.Target;
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
  * @description: 锁注解
+ * For reference, the example
+ * @RedissonLock(name = "test-lock", keys = {"#id"}, leaseTime=-1)
+ * public void testLock(String id){}
+ * @see  RedissonLockKey
  * @since 1.0.0
  */
 @Target(value = {ElementType.METHOD})

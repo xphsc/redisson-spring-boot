@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.StringUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +50,7 @@ public class RateLimitMethodInterceptor implements MethodInterceptor {
 
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
-        RateLimit rateLimit= AnnotationScanUtils.findAnnotation(methodInvocation.getMethod(), RateLimit.class);
+       RateLimit rateLimit= AnnotationScanUtils.findAnnotation(methodInvocation.getMethod(), RateLimit.class);
         RateLimiterInfo limiterInfo = rateLimiterHander.getRateLimiterInfo(methodInvocation.getMethod(),methodInvocation.getThis(),methodInvocation.getArguments(), rateLimit);
         List<Object> keys = new ArrayList<>();
         keys.add(limiterInfo.getKey());

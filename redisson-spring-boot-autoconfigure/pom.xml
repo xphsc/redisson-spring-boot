@@ -6,16 +6,38 @@
 
     <groupId>cn.xphsc.boot</groupId>
     <artifactId>redisson-spring-boot-autoconfigure</artifactId>
-    <version>1.0.0</version>
-
+    <version>1.0.2</version>
+    <description>redisson Spring Boot AutoConfigure 高度扩展组件</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
         <spring-boot.version>1.5.3.RELEASE</spring-boot.version>
         <redisson.version>3.2.0</redisson.version>
-        <jackson-databind.version>2.12.3</jackson-databind.version>
     </properties>
+    <parent>
+        <groupId>org.sonatype.oss</groupId>
+        <artifactId>oss-parent</artifactId>
+        <version>7</version>
+    </parent>
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses><developers>
+    <developer>
+        <name>xphsc</name>
+        <email>xiongpeih@163.com</email>
+    </developer>
+</developers>
+    <scm>
+        <connection>scm:git@github.com:xphsc/redisson-spring-boot.git</connection>
+        <developerConnection>scm:git@github.com:xphsc/redisson-spring-boot.git</developerConnection>
+        <url>git@github.com:xphsc/redisson-spring-boot.git</url>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -29,14 +51,10 @@
             <version>${spring-boot.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring-boot.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
             <version>${redisson.version}</version>
+            <optional>true</optional>
         </dependency>
     </dependencies>
     <build>

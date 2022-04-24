@@ -17,6 +17,7 @@ package cn.xphsc.redisson.core.ratelimiter.advice;
 
 
 import cn.xphsc.redisson.utils.BeanRegistrarUtils;
+import org.springframework.aop.config.AopConfigUtils;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.support.BeanDefinitionRegistry;
@@ -36,10 +37,11 @@ public class RateLimitRegistrar implements ImportBeanDefinitionRegistrar {
         BeanDefinitionBuilder bdb = BeanRegistrarUtils.genericBeanDefinition(RatelimitAdvisor.class);
         bdb.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
         BeanDefinition bd = bdb.getBeanDefinition();
-       bdb.addPropertyValue("order", Integer.MAX_VALUE-8);
+        bdb.addPropertyValue("order", Integer.MAX_VALUE-8);
         String beanName = RatelimitAdvisor.class.getName();
         BeanRegistrarUtils.registerBeanDefinitionIfNotExists(registry, beanName, bd);
-
+        AopConfigUtils.registerAutoProxyCreatorIfNecessary(registry);
+        AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);
     }
 
 

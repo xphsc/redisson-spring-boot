@@ -1,0 +1,5 @@
+spring:
+ redis:
+  host: localhost
+#  password: vrv@1234
+  database: 2

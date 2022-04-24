@@ -15,9 +15,15 @@
  */
 package cn.xphsc.redisson.core.delayqueue;
 
+
+import cn.xphsc.redisson.core.queue.QueueThreadFactory;
+import cn.xphsc.redisson.core.queue.RedisListenerMethod;
 import org.redisson.api.RBlockingDeque;
 import org.slf4j.MDC;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.SmartLifecycle;
+import java.lang.reflect.Method;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
@@ -38,6 +44,8 @@ public class DelayQueueListenerContainer implements SmartLifecycle {
     private ExecutorService threadPool;
     private volatile boolean stop = false;
     private String queueName;
+    private List<RedisListenerMethod> redisListenerMethods;
+    private ApplicationContext applicationContext;
     @Override
     public void start() {
         threadPool = new ThreadPoolExecutor(1,
@@ -45,25 +53,35 @@ public class DelayQueueListenerContainer implements SmartLifecycle {
                 30,
                 TimeUnit.MINUTES,
                 new SynchronousQueue(),
-                new DelayQueueThreadFactory(queueName()),
+                new QueueThreadFactory(queueName()),
                 new ThreadPoolExecutor.CallerRunsPolicy()
         );
         startListener();
         setRunning(true);
     }
 
+    @Override
+    public void stop() {
+        stop=true;
+    }
+
     @SuppressWarnings("AlibabaAvoidManuallyCreateThread")
     private void startListener() {
         new Thread(() -> {
-            while (!stop) {
+           while (!stop) {
                 try {
                     final Object message = distinationQueue.take();
-                    if(message!=null){
-                        threadPool.submit(() -> handleMessage(message));
+                    if (message != null) {
+                        if (listener == null) {
+                            threadPool.submit(() -> handleMethodMessage(message));
+                        } else {
+                            threadPool.submit(() -> handleMessage(message));
+                        }
+
                     }
                 } catch (Exception e) {
                 }
-            }
+           }
         }).start();
     }
 
@@ -71,6 +89,22 @@ public class DelayQueueListenerContainer implements SmartLifecycle {
         try {
             MDC.put("UUID", UUID.randomUUID().toString());
             listener.onMessage(message);
+        } catch (Exception e) {
+        }finally {
+            MDC.remove("UUID");
+        }
+    }
+
+    private void handleMethodMessage(Object message) {
+        try {
+            MDC.put("UUID", UUID.randomUUID().toString());
+            if(!redisListenerMethods.isEmpty()&&redisListenerMethods.size()>0) {
+                for (RedisListenerMethod redisListenerMethod : redisListenerMethods) {
+                    Method targetMethod = redisListenerMethod.getTargetMethod();
+                    targetMethod.invoke(redisListenerMethod.getBean(applicationContext), message);
+
+                }
+            }
         } catch (Exception e) {
         }finally {
             MDC.remove("UUID");
@@ -109,10 +143,6 @@ public class DelayQueueListenerContainer implements SmartLifecycle {
         this.stop = stop;
     }
 
-    @Override
-    public void stop() {
-        stop = true;
-    }
 
     @Override
     public boolean isRunning() {
@@ -130,6 +160,22 @@ public class DelayQueueListenerContainer implements SmartLifecycle {
 
     public void setQueueName(String queueName) {
         this.queueName = queueName;
+    }
+
+    public List<RedisListenerMethod> getRedisListenerMethods() {
+        return redisListenerMethods;
+    }
+
+    public void setRedisListenerMethods(List<RedisListenerMethod> redisListenerMethods) {
+        this.redisListenerMethods = redisListenerMethods;
+    }
+
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        this.applicationContext = applicationContext;
     }
 
     public boolean isAutoStartup() {
