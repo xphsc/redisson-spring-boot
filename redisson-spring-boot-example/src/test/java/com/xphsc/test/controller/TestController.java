@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api")
-//@RedissonDelayQueryListener(queue="delay-message-queue-name")
 public class TestController {
 
     @Autowired
@@ -28,7 +27,7 @@ public class TestController {
     RedissonQueueTemplate redissonQueueTemplate;
     @GetMapping
     public String test(String id) {
-     //   Distributed-lock
+        //   Distributed-lock
 //        id = new Random().nextInt(100) + "";
         testService.testLock(id, new UserVO(1L, "zhangsan", 18, new DeptVO(1L, "交易平台")));
         return "ok";
@@ -60,24 +59,18 @@ public class TestController {
     public Object test(){
         DelayMessage delayMessage=new DelayMessage();
         delayMessage.setName("2");
-       // delayQueueTemplate.send("delay-message-queue-name", delayMessage, 10, TimeUnit.SECONDS);
-      /*  DelayMessage delayMessage1= (DelayMessage) redissonQueueTemplate.receive("delay333-message-queue-name");
-        System.out.println("111111119999999999--------"+delayMessage1);*/
         DelayMessage delayMessage1= (DelayMessage)  delayQueueTemplate.receive("delay-2-2-message-queue-name");
-        System.out.println("111111119999999999--------"+delayMessage1.getName());
         return delayMessage;
     }
 
-    @GetMapping("/test6")
-    public Object test6(){
+
+
+    @GetMapping("/test7")
+    public Object test7(){
         DelayMessage delayMessage=new DelayMessage();
-        delayMessage.setName("2");
-        // delayQueueTemplate.send("delay-message-queue-name", delayMessage, 10, TimeUnit.SECONDS);
-      /*  DelayMessage delayMessage1= (DelayMessage) redissonQueueTemplate.receive("delay333-message-queue-name");
-        System.out.println("111111119999999999--------"+delayMessage1);*/
-       // Object delayMessage1=  redissonQueueTemplate.receive("delay-2-2-message-queue-name");
-       // System.out.println("111111119999999999--------"+delayMessage1);
+        delayMessage.setName("12");
+        delayQueueTemplate.send("delay-message-queue-name", delayMessage, 1, TimeUnit.MINUTES);
         return delayMessage;
     }
 
-}
+}}

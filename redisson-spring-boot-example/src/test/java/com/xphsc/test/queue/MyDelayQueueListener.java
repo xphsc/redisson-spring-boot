@@ -10,11 +10,9 @@ import org.springframework.stereotype.Component;
  * @description:
  * @since 1.0.0
  */
-//RedissonDelayQueueListener(queueName = "delay-message-queue-name")
 @Component
-public class MyDelayQueueListener/* implements DelayQueueListener<DelayMessage>*/ {
-  //  @Override
-  @RedissonDelayQueueListener(queueName = "delay-message-queue-name")
+public class MyDelayQueueListener {
+    @RedissonDelayQueueListener(queueName = "delay-message-queue-name")
     public void onMessage(DelayMessage delayMessage) {
         System.out.println("--delayMessage---"+delayMessage.getName());
     }

@@ -11,13 +11,14 @@ import org.springframework.stereotype.Component;
  * @description:
  * @since 1.0.0
  */
-//@RedissonDelayQueueListener(queueName = "delay-message-queue-name")
-@Component
-public class MyDelay1QueueListener /*implements DelayQueueListener<DelayMessage>*/ {
-    /*@Override
+//@RedissonDelayQueueListener(queueName = "delay2-message-queue-name")
+//@Component
+public class MyDelay1QueueListener implements DelayQueueListener<DelayMessage> {
+    @Override
     public void onMessage(DelayMessage delayMessage) {
-        System.out.println("------delayMessage-----------"+delayMessage.getName());
-    }*/
+        System.out.println("------delayMessage2-----------"+delayMessage.getName());
+    }
 
 
 }
+

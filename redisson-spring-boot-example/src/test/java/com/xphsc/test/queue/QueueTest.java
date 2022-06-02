@@ -31,7 +31,7 @@ public class QueueTest {
     public void test(){
         DelayMessage delayMessage=new DelayMessage();
         delayMessage.setName("12");
-        delayQueueTemplate.send("delay-message-queue-name", delayMessage, 1, TimeUnit.SECONDS);
+        delayQueueTemplate.send("delay-message-queue-name", delayMessage, 20, TimeUnit.SECONDS);
     }
 
     @Test
@@ -40,36 +40,37 @@ public class QueueTest {
         delayMessage.setName("---222");
         delayQueueTemplate.send("delay1-message-queue-name", delayMessage, 1, TimeUnit.SECONDS);
     }
-
     @Test
     public void test2(){
         DelayMessage delayMessage=new DelayMessage();
-        delayMessage.setName("---re5rt");
-        queueTemplate.send("delay333-message-queue-name", delayMessage);
-
-    }
-    @Test
-    public void test3(){
-        DelayMessage delayMessage=new DelayMessage();
-        delayMessage.setName("---test3");
-        queueTemplate.send("delay-2-2-message-queue-name", JSON.toJSONString(delayMessage));
-
+        delayMessage.setName("---5--------------");
+        delayQueueTemplate.send("delay2-message-queue-name", delayMessage, 40, TimeUnit.SECONDS);
     }
 
     @Test
     public void test333(){
         DelayMessage delayMessage=new DelayMessage();
-        delayMessage.setName("---message333");
-        queueTemplate.send("message333-message-queue-name", delayMessage);
+        delayMessage.setName("---message");
+        queueTemplate.send("message-message-queue-name", delayMessage);
 
     }
 
     @Test
     public void test43(){
         DelayMessage delayMessage=new DelayMessage();
-        delayMessage.setName("---message444");
-        queueTemplate.send("message444-message-queue-name", delayMessage);
+        delayMessage.setName("---message1");
+        queueTemplate.send("message1-message-queue-name", delayMessage);
 
     }
+
+
+    @Test
+    public void test56(){
+        DelayMessage delayMessage=new DelayMessage();
+        delayMessage.setName("---message56");
+        System.out.println(  queueTemplate.send("message56-queue-name", delayMessage));
+
+    }
+
 
 }

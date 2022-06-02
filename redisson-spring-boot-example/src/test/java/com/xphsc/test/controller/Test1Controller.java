@@ -11,6 +11,20 @@ import org.springframework.web.bind.annotation.*;
  * @description:
  * @since 1.0.0
  */
+package com.xphsc.test.controller;
+
+import cn.xphsc.redisson.annotation.RateLimit;
+import cn.xphsc.redisson.annotation.RateLimitKey;
+import com.xphsc.test.domain.UserVO;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * {@link }
+ *
+ * @author <a href="xiongpeih@163.com">huipei.x</a>
+ * @description:
+ * @since 1.0.0
+ */
 @RestController
 @RequestMapping("/test")
 public class Test1Controller {
@@ -27,9 +41,13 @@ public class Test1Controller {
         return "get";
     }
 
-    /**
-     * 提供 wrk 压测工具压测的接口 , 测试脚本: wrk -t16 -c100 -d15s --latency http://localhost:8080/test/wrk
-     */
+    @GetMapping("/get3")
+    @RateLimit(rate = 1, rateInterval = "2s")
+    public String get3( @RateLimitKey(value = "#name") String name) {
+        return "get";
+    }
+
+
     @GetMapping("/wrk")
     @RateLimit(rate = 100000000, rateInterval = "30s")
     public String wrk() {
@@ -42,6 +60,8 @@ public class Test1Controller {
         return "hello";
     }
 
+
+
     public String getFallback(String name){
         return "命中了" + name;
     }
@@ -50,3 +70,4 @@ public class Test1Controller {
         return "keyFunction";
     }
 }
+

@@ -58,29 +58,13 @@
         <dependency>
             <groupId>cn.xphsc.boot</groupId>
             <artifactId>redisson-spring-boot-autoconfigure</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.2</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
             <version>1.2.78</version>
         </dependency>
-        <!-- <dependency>
-             <groupId>com.fasterxml.jackson.core</groupId>
-             <artifactId>jackson-databind</artifactId>
-             <version>${jackson-databind.version}</version>
-         </dependency>
-         <dependency>
-             <groupId>com.fasterxml.jackson.core</groupId>
-             <artifactId>jackson-core</artifactId>
-             <version>${jackson-databind.version}</version>
-         </dependency>
-         <dependency>
-             <groupId>com.fasterxml.jackson.core</groupId>
-             <artifactId>jackson-annotations</artifactId>
-             <version>${jackson-databind.version}</version>
-         </dependency>
- -->
 
     </dependencies>
     <build>
