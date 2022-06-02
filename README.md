@@ -1,3 +1,5 @@
+<img src="image/logo.png" width="40%" height="40%" />
+
 # redisson-spring-boot 低耦合集成的高度扩展组件
 [![Build Status](https://api.travis-ci.org/cn.xphsc.boot/redisson-spring-boot-starter.svg?branch=master)]
 [![JDK](https://img.shields.io/badge/JDK-1.8+-green.svg)]
