@@ -49,6 +49,8 @@ redisson 操作以及限流 分布式锁 延迟消息队列，消息队列
     public void test(@RedissonLockKey String id) {
         this.testLock(id, user);
     }
+     @RedissonLock(name = "test-lock", keys = {"#id"}, leaseTime=-1)
+      public void testLock(String id){}
 ~~~
   3.3.3 延迟队列
 ~~~
