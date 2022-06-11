@@ -3,13 +3,13 @@
 # redisson-spring-boot 低耦合集成的高度扩展组件
 [![Build Status](https://api.travis-ci.org/cn.xphsc.boot/redisson-spring-boot-starter.svg?branch=master)]
 [![JDK](https://img.shields.io/badge/JDK-1.8+-green.svg)]
-[![Maven central](https://maven-badges.herokuapp.com/maven-central/cn.xphsc.boot/redisson-spring-boot-starter/badge.svg)]
+[![Maven central](https://img.shields.io/maven-central/v/cn.xphsc.boot/redisson-spring-boot-starter.svg))]
 [![APACHE 2 License](https://img.shields.io/badge/license-Apache2-blue.svg?style=flat)](LICENSE)
 
 #### 介绍
-{**redisson-spring-boot低耦合集成的高度扩展组件**
+**redisson-spring-boot低耦合集成的高度扩展组件**
 redisson  Spring Boot低耦合集成的高度扩展组件
-redisson 操作以及限流 分布式锁 延迟消息队列，消息队列
+* redisson 操作以及限流 分布式锁 延迟消息队列，消息队列
 #### 安装教程
 ~~~
 <dependency>
@@ -24,7 +24,7 @@ redisson 操作以及限流 分布式锁 延迟消息队列，消息队列
 
 3.3.1限流
 ~~~
- public class Test1Controller {
+ public class TestController {
      @GetMapping("/get")
      @RateLimit(rate = 1, rateInterval = "10s")
      public String get() {
@@ -41,6 +41,9 @@ redisson 操作以及限流 分布式锁 延迟消息队列，消息队列
      public String get2( @RateLimitKey(value = "#name") String name) {
          return "get";
      }
+
+       @RateLimit(rate = 5, rateInterval = "10s",keys = {"#user.name","#user.id"})
+      *  public String hello(User user) { }
 ~~~
   3.3.2分布式锁
 ~~~
