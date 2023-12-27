@@ -9,13 +9,13 @@
 #### 介绍
 **redisson-spring-boot低耦合集成的高度扩展组件**
 redisson  Spring Boot低耦合集成的高度扩展组件
-* redisson 操作以及限流 分布式锁 延迟消息队列，消息队列
+* redisson 操作以及限流 分布式锁 延迟消息队列，消息队列,布隆过滤器
 #### 安装教程
 ~~~
 <dependency>
   <groupId>cn.xphsc.boot</groupId>
   <artifactId>redisson-spring-boot-starter</artifactId>
-     <version>1.0.2</version>
+     <version>1.0.4</version>
 </dependency>
 
 ~~~
