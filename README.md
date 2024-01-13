@@ -21,7 +21,39 @@ redisson  Spring Boot低耦合集成的高度扩展组件
 ~~~
 
 #### 3使用说明
-
+yaml(和spring data redis基本一样)
+~~~
+spring:
+ redis:
+  host: localhost
+  password: xxx
+  database: 2
+~~~
+####配置说明
+参数 |说明
+---|---
+host | url地址
+port | 端口
+password | 密码
+database |database
+ClusterServer | 集群
+codec | codec
+connectionMinimumIdleSize | 最小空闲连接数,默认值:10,最小保持连接数（长连接）
+idleConnectionTimeout | 而连接空闲时间超过了该数值，这些连接将会自动被关闭，并从连接池里去掉
+pingTimeout | ping节点超时,单位：毫秒,默认1000
+connectTimeout | 连接等待超时,单位：毫秒,默认10000
+timeout | 命令等待超时,单位：毫秒,默认3000；等待节点回复命令的时间。该时间从命令发送成功时开始计时
+retryAttempts| 命令失败重试次数，默认值:3
+retryInterval|命令重试发送时间间隔，单位：毫秒,默认值:1500
+reconnectionTimeout|重新连接时间间隔，单位：毫秒,默认值：3000;连接断开时，等待与其重新建立连接的时间间隔
+failedAttempts|执行失败最大次数, 默认值：3；失败后直到 reconnectionTimeout超时以后再次尝试。
+subscriptionsPerConnection|单个连接最大订阅数量，默认值：5
+clientName|客户端名称
+subscriptionConnectionMinimumIdleSize|长期保持一定数量的发布订阅连接是必须的、
+connectionPoolSize|发布和订阅连接池大小，默认值：50
+dnsMonitoring|是否启用DNS监测，默认值：false
+dnsMonitoringInterval|DNS监测时间间隔，单位：毫秒，默认值：5000
+~~~
 3.3.1限流
 ~~~
  public class TestController {
