@@ -30,7 +30,6 @@ spring:
   database: 2
 ~~~
 ####配置说明
-~~~
 参数 |说明
 ---|---
 host | url地址
@@ -54,7 +53,7 @@ subscriptionConnectionMinimumIdleSize|长期保持一定数量的发布订阅连
 connectionPoolSize|发布和订阅连接池大小，默认值：50
 dnsMonitoring|是否启用DNS监测，默认值：false
 dnsMonitoringInterval|DNS监测时间间隔，单位：毫秒，默认值：5000
-~~~
+
 3.3.1限流
 ~~~
    public class TestController {
