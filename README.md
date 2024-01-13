@@ -30,6 +30,7 @@ spring:
   database: 2
 ~~~
 ####配置说明
+~~~
 参数 |说明
 ---|---
 host | url地址
@@ -56,7 +57,7 @@ dnsMonitoringInterval|DNS监测时间间隔，单位：毫秒，默认值：5000
 ~~~
 3.3.1限流
 ~~~
- public class TestController {
+   public class TestController {
      @GetMapping("/get")
      @RateLimit(rate = 1, rateInterval = "10s")
      public String get() {
@@ -142,7 +143,6 @@ public class MyQueueListener {
         queueTemplate.send("message-message-queue-name", message);
 
     }
-
 ~~~
 
 
