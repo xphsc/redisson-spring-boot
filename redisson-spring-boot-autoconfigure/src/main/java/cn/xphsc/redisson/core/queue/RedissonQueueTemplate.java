@@ -25,7 +25,8 @@ import org.redisson.api.RedissonClient;
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
- * @description: Message queue template
+ * @description: Redis Pub/Sub broadcast template. Use
+ * {@link RedissonBlockingQueueTemplate} for competitive consumption.
  * @since 1.0.0
  */
 public class RedissonQueueTemplate<S> {
@@ -55,5 +56,7 @@ public class RedissonQueueTemplate<S> {
         }
         return true;
     }
+
+
 
 }

@@ -17,7 +17,9 @@ package cn.xphsc.redisson.core.delayqueue;
 
 
 import cn.xphsc.redisson.annotation.RedissonDelayQueueListener;
+import cn.xphsc.redisson.core.queue.LoggingRedisListenerErrorHandler;
 import cn.xphsc.redisson.core.queue.RedisListenerMethod;
+import cn.xphsc.redisson.core.queue.RedisListenerErrorHandler;
 import org.redisson.api.RBlockingDeque;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeansException;
@@ -40,19 +42,36 @@ import java.util.concurrent.atomic.AtomicLong;
 public class DelayQueueListenerRegistry implements ApplicationContextAware, SmartInitializingSingleton {
     private ApplicationContext applicationContext;
     private final Map<String, DelayQueueListener> delayQueueListeners = new HashMap<>();
-    private static final Map<String, List<RedisListenerMethod>> redisListeners = new HashMap<>();
-    private AtomicLong counter = new AtomicLong(0);
+    private final Map<String, List<RedisListenerMethod>> redisListeners = new HashMap<>();
+    private final AtomicLong counter = new AtomicLong(0);
     private final RedissonClient redissonClient;
-    private String queueName;
+    private final RedisListenerErrorHandler errorHandler;
+
     public DelayQueueListenerRegistry(RedissonClient redissonClient) {
+        this(redissonClient, new LoggingRedisListenerErrorHandler());
+    }
+
+    public DelayQueueListenerRegistry(RedissonClient redissonClient,
+                                      RedisListenerErrorHandler errorHandler) {
         this.redissonClient = redissonClient;
+        this.errorHandler = errorHandler != null
+                ? errorHandler : new LoggingRedisListenerErrorHandler();
     }
 
     public void registerListener(DelayQueueListener listener) {
-        RedissonDelayQueueListener redissonDelayQueryListener=  listener.getClass().getAnnotation(RedissonDelayQueueListener.class);
-        this.queueName=redissonDelayQueryListener.queueName();
+        registerListener(listener, listener.getClass());
+    }
+
+    public void registerListener(DelayQueueListener listener, Class<?> listenerClass) {
+        RedissonDelayQueueListener annotation = AnnotatedElementUtils.findMergedAnnotation(
+                listenerClass, RedissonDelayQueueListener.class);
+        if (annotation == null) {
+            throw new IllegalStateException("DelayQueueListener must be annotated with @RedissonDelayQueueListener: "
+                    + listenerClass.getName());
+        }
+        String queueName = annotation.queueName();
         if (delayQueueListeners.putIfAbsent(queueName, listener) != null) {
-            throw new RuntimeException(String.format("Delay queue name:{} already registered", queueName));
+            throw new IllegalStateException(String.format("Delay queue name %s already registered", queueName));
         }
     }
 
@@ -67,6 +86,7 @@ public class DelayQueueListenerRegistry implements ApplicationContextAware, Smar
                     String queueName = (String) annotationAttributes.get("queueName");
                     Type[] genericParameterTypes = method.getGenericParameterTypes();
                     RedisListenerMethod rlm = new RedisListenerMethod();
+                    ReflectionUtils.makeAccessible(method);
                     rlm.setBeanName(beanName);
                     rlm.setTargetMethod(method);
                     rlm.setMethodParameterClassName(parameterTypes[0].getName());
@@ -77,7 +97,7 @@ public class DelayQueueListenerRegistry implements ApplicationContextAware, Smar
                     }
                     redisListeners.get(queueName).add(rlm);
                 } else {
-                    throw new RuntimeException("有@RedissonDelayQueueListener注解的方法有且仅能包含一个参数");
+                    throw new RuntimeException("Methods annotated with @RedissonDelayQueueListener have and can only contain one parameter");
                 }
             }
 
@@ -86,25 +106,39 @@ public class DelayQueueListenerRegistry implements ApplicationContextAware, Smar
 
     @Override
     public void afterSingletonsInstantiated() {
-        if(!delayQueueListeners.isEmpty()&&delayQueueListeners.size()>0){
-            delayQueueListeners.forEach(this::registerContainer);
-        }else{
-            redisListeners.forEach(this::registerContainer);
-        }
+        delayQueueListeners.forEach(this::registerContainer);
+        redisListeners.forEach((queueName, listenerMethods) -> {
+            if (delayQueueListeners.containsKey(queueName)) {
+                throw new IllegalStateException("Delay queue " + queueName
+                        + " cannot use class and method listener modes at the same time");
+            }
+            registerContainer(queueName, listenerMethods);
+        });
     }
 
 
 
-
-    private void registerContainer(String beanName, DelayQueueListener delayQueueListener) {
+    private void registerContainer(String queueName, Object bean) {
         String containerBeanName = String.format("%s_%s", DelayQueueListenerContainer.class.getName(),
                 counter.incrementAndGet());
         GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;
         BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(DelayQueueListenerContainer.class);
-        DelayQueueListenerContainer delayQueueListenerContainer=createListenerContainer(containerBeanName, delayQueueListener);
-        beanDefinitionBuilder.addPropertyValue("distinationQueue",delayQueueListenerContainer.getDistinationQueue());
-        beanDefinitionBuilder.addPropertyValue("listener",delayQueueListenerContainer.getListener());
-        beanDefinitionBuilder.addPropertyValue("queueName",delayQueueListenerContainer.queueName());
+        RBlockingDeque<Object> blockingDeque = null;
+        if(bean instanceof DelayQueueListener){
+            DelayQueueListenerContainer delayQueueListenerContainer =
+                    createListenerContainer(queueName, (DelayQueueListener) bean);
+            blockingDeque=delayQueueListenerContainer.getDistinationQueue();
+            beanDefinitionBuilder.addPropertyValue("listener",delayQueueListenerContainer.getListener());
+        }else{
+            List<RedisListenerMethod> redisListenerMethods= (List<RedisListenerMethod>) bean;
+            blockingDeque = redissonClient.getBlockingDeque(queueName);
+            redissonClient.getDelayedQueue(blockingDeque);
+            beanDefinitionBuilder.addPropertyValue("applicationContext", this.applicationContext);
+            beanDefinitionBuilder.addPropertyValue("redisListenerMethods", redisListenerMethods);
+        }
+        beanDefinitionBuilder.addPropertyValue("distinationQueue",blockingDeque);
+        beanDefinitionBuilder.addPropertyValue("queueName", queueName);
+        beanDefinitionBuilder.addPropertyValue("errorHandler", errorHandler);
         genericApplicationContext.registerBeanDefinition(containerBeanName,beanDefinitionBuilder.getBeanDefinition());
         DelayQueueListenerContainer container = genericApplicationContext.getBean(containerBeanName,
                 DelayQueueListenerContainer.class);
@@ -117,40 +151,18 @@ public class DelayQueueListenerRegistry implements ApplicationContextAware, Smar
         }
     }
 
-    private DelayQueueListenerContainer createListenerContainer(String containerBeanName, DelayQueueListener delayQueueListener) {
+    private DelayQueueListenerContainer createListenerContainer(
+            String queueName, DelayQueueListener delayQueueListener) {
         DelayQueueListenerContainer delayQueueListenerContainer = new DelayQueueListenerContainer();
         RBlockingDeque<Object> blockingDeque = redissonClient.getBlockingDeque(queueName);
-         redissonClient.getDelayedQueue(blockingDeque);
+        redissonClient.getDelayedQueue(blockingDeque);
         delayQueueListenerContainer.setDistinationQueue(blockingDeque);
         delayQueueListenerContainer.setListener(delayQueueListener);
         delayQueueListenerContainer.setQueueName(queueName);
+        delayQueueListenerContainer.setErrorHandler(errorHandler);
         return delayQueueListenerContainer;
     }
 
-
-    private void registerContainer(String queueKey, List<RedisListenerMethod> redisListenerMethods) {
-        String containerBeanName = String.format("%s_%s", DelayQueueListenerContainer.class.getName(),
-                counter.incrementAndGet());
-        GenericApplicationContext genericApplicationContext = (GenericApplicationContext) applicationContext;
-        BeanDefinitionBuilder beanDefinitionBuilder = BeanDefinitionBuilder.genericBeanDefinition(DelayQueueListenerContainer.class);
-         RBlockingDeque<Object> blockingDeque = redissonClient.getBlockingDeque(queueKey);
-            redissonClient.getDelayedQueue(blockingDeque);
-            beanDefinitionBuilder.addPropertyValue("distinationQueue",blockingDeque);
-            beanDefinitionBuilder.addPropertyValue("queueName", queueKey);
-            beanDefinitionBuilder.addPropertyValue("applicationContext", this.applicationContext);
-                beanDefinitionBuilder.addPropertyValue("redisListenerMethods", redisListenerMethods);
-            genericApplicationContext.registerBeanDefinition(containerBeanName, beanDefinitionBuilder.getBeanDefinition());
-            DelayQueueListenerContainer container = genericApplicationContext.getBean(containerBeanName,
-                    DelayQueueListenerContainer.class);
-            if (!container.isRunning()) {
-                try {
-                    container.start();
-                } catch (Exception e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {

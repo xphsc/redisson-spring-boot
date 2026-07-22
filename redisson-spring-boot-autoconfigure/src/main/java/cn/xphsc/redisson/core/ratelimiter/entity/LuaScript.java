@@ -31,7 +31,7 @@ import java.nio.charset.StandardCharsets;
 public final class LuaScript {
 
     private LuaScript(){}
-    private static final Logger log = LoggerFactory.getLogger(LuaScript.class);
+    private static final Logger LOG = LoggerFactory.getLogger(LuaScript.class);
     private static final String RATE_LIMITER_FILE_PATH = "META-INF/rateLimit.lua";
     private static String rateLimiterScript;
 
@@ -41,7 +41,7 @@ public final class LuaScript {
         try {
             rateLimiterScript =  StreamUtils.copyToString(in, StandardCharsets.UTF_8);
         } catch (IOException e) {
-            log.error("ratelimiter Initialization failure",e);
+            LOG.error("ratelimiter Initialization failure",e);
         }
     }
 

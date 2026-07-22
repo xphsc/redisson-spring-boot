@@ -1,0 +1,32 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: redisson-feature-example
+  redis:
+    host: localhost
+    port: 6379
+    database: 2
+    queue:
+      enabled: true
+      concurrency: 4
+      capacity: 100
+      backpressure: BLOCK
+      retry-attempts: 3
+      retry-interval: 500
+      dead-letter-queue: "{queue}.dlq"
+      shutdown-timeout: 30000
+    delayqueue:
+      enabled: true
+      concurrency: 2
+      capacity: 50
+      backpressure: BLOCK
+      retry-attempts: 2
+      retry-interval: 1000
+      dead-letter-queue: "{queue}.dlq"
+      shutdown-timeout: 30000
+    lock:
+      enabled: true
+      wait-time: 3
+      lease-time: 10

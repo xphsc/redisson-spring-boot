@@ -34,7 +34,7 @@ import java.lang.reflect.Method;
 public class RateLimiterHander {
 
     private static final String NAME_PREFIX = "RateLimiter_";
-    private static final Logger logger = LoggerFactory.getLogger(RateLimiterHander.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RateLimiterHander.class);
     private RatelimitProvider ratelimitProvider;
     public RateLimiterHander(RatelimitProvider ratelimitProvider){
         this.ratelimitProvider=ratelimitProvider;
@@ -47,7 +47,7 @@ public class RateLimiterHander {
             try {
                 rateLimitKey = getName(method) + this.executeFunction(rateLimit.customKey(), method,target,args).toString();
             } catch (Throwable throwable) {
-                logger.info("Gets the custom Key exception and degrades it to the default Key:{}", rateLimit, throwable);
+                LOGGER.info("Gets the custom Key exception and degrades it to the default Key:{}", rateLimit, throwable);
             }
         }
         long rate = ratelimitProvider.getRateValue(rateLimit);

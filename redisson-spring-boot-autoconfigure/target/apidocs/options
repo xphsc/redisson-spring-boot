@@ -1,0 +1,24 @@
+-classpath
+'E:/devSoftware/apache-maven-3.9.9/Repository/org/springframework/spring-beans/5.0.4.RELEASE/spring-beans-5.0.4.RELEASE.jar;E:/devSoftware/apache-maven-3.9.9/Repository/io/netty/netty-resolver-dns/4.1.74.Final/netty-resolver-dns-4.1.74.Final.jar;E:/devSoftware/apache-maven-3.9.9/Repository/com/fasterxml/jackson/dataformat/jackson-dataformat-yaml/2.13.1/jackson-dataformat-yaml-2.13.1.jar;E:/devSoftware/apache-maven-3.9.9/Repository/io/netty/netty-buffer/4.1.74.Final/netty-buffer-4.1.74.Final.jar;E:/devSoftware/apache-maven-3.9.9/Repository/io/netty/netty-resolver/4.1.74.Final/netty-resolver-4.1.74.Final.jar;E:/devSoftware/apache-maven-3.9.9/Repository/javax/cache/cache-api/1.1.1/cache-api-1.1.1.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/jboss/marshalling/jboss-marshalling/2.0.11.Final/jboss-marshalling-2.0.11.Final.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/jodd/jodd-bean/5.1.6/jodd-bean-5.1.6.jar;E:/devSoftware/apache-maven-3.9.9/Repository/io/netty/netty-codec/4.1.74.Final/netty-codec-4.1.74.Final.jar;E:/devSoftware/apache-maven-3.9.9/Repository/com/fasterxml/jackson/core/jackson-annotations/2.13.1/jackson-annotations-2.13.1.jar;E:/devSoftware/apache-maven-3.9.9/Repository/io/netty/netty-transport/4.1.74.Final/netty-transport-4.1.74.Final.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/jboss/marshalling/jboss-marshalling-river/2.0.11.Final/jboss-marshalling-river-2.0.11.Final.jar;E:/devSoftware/apache-maven-3.9.9/Repository/io/netty/netty-handler/4.1.74.Final/netty-handler-4.1.74.Final.jar;E:/devSoftware/apache-maven-3.9.9/Repository/io/reactivex/rxjava3/rxjava/3.0.12/rxjava-3.0.12.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/slf4j/slf4j-api/1.7.36/slf4j-api-1.7.36.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/jodd/jodd-core/5.1.6/jodd-core-5.1.6.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/redisson/redisson/3.17.0/redisson-3.17.0.jar;E:/devSoftware/apache-maven-3.9.9/Repository/com/fasterxml/jackson/core/jackson-core/2.13.1/jackson-core-2.13.1.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/reactivestreams/reactive-streams/1.0.3/reactive-streams-1.0.3.jar;E:/devSoftware/apache-maven-3.9.9/Repository/net/bytebuddy/byte-buddy/1.11.0/byte-buddy-1.11.0.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/springframework/spring-expression/5.0.4.RELEASE/spring-expression-5.0.4.RELEASE.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/springframework/boot/spring-boot-configuration-processor/2.0.0.RELEASE/spring-boot-configuration-processor-2.0.0.RELEASE.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/yaml/snakeyaml/1.28/snakeyaml-1.28.jar;E:/devSoftware/apache-maven-3.9.9/Repository/com/fasterxml/jackson/core/jackson-databind/2.13.1/jackson-databind-2.13.1.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/springframework/spring-aop/5.0.4.RELEASE/spring-aop-5.0.4.RELEASE.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/springframework/spring-context/5.0.4.RELEASE/spring-context-5.0.4.RELEASE.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/springframework/boot/spring-boot-autoconfigure/2.0.0.RELEASE/spring-boot-autoconfigure-2.0.0.RELEASE.jar;E:/devSoftware/apache-maven-3.9.9/Repository/io/netty/netty-common/4.1.74.Final/netty-common-4.1.74.Final.jar;E:/devSoftware/apache-maven-3.9.9/Repository/io/netty/netty-codec-dns/4.1.74.Final/netty-codec-dns-4.1.74.Final.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/springframework/spring-jcl/5.0.4.RELEASE/spring-jcl-5.0.4.RELEASE.jar;E:/devSoftware/apache-maven-3.9.9/Repository/io/projectreactor/reactor-core/3.4.13/reactor-core-3.4.13.jar;E:/devSoftware/apache-maven-3.9.9/Repository/io/netty/netty-tcnative-classes/2.0.48.Final/netty-tcnative-classes-2.0.48.Final.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/springframework/spring-core/5.0.4.RELEASE/spring-core-5.0.4.RELEASE.jar;E:/devSoftware/apache-maven-3.9.9/Repository/org/springframework/boot/spring-boot/2.0.0.RELEASE/spring-boot-2.0.0.RELEASE.jar'
+-encoding
+'UTF-8'
+-protected
+-sourcepath
+'E:/ideaPro/xphsc/custom/redisson-spring-boot/redisson-spring-boot-autoconfigure/src/main/java;E:/ideaPro/xphsc/custom/redisson-spring-boot/redisson-spring-boot-autoconfigure/target/generated-sources/annotations'
+-author
+-bottom
+'Copyright &#169; 2026. All rights reserved.'
+-charset
+'UTF-8'
+-d
+'E:/ideaPro/xphsc/custom/redisson-spring-boot/redisson-spring-boot-autoconfigure/target/apidocs'
+-docencoding
+'UTF-8'
+-doctitle
+'redisson-spring-boot-autoconfigure 1.0.6 API'
+-linkoffline
+'http://docs.oracle.com/javase/8/docs/api' 'E:/ideaPro/xphsc/custom/redisson-spring-boot/redisson-spring-boot-autoconfigure/target/javadoc-bundle-options'
+-use
+-version
+-windowtitle
+'redisson-spring-boot-autoconfigure 1.0.6 API'

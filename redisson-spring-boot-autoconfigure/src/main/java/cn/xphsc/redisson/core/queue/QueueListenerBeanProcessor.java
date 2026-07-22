@@ -18,6 +18,7 @@ package cn.xphsc.redisson.core.queue;
 
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.aop.support.AopUtils;
 
 
 /**
@@ -37,7 +38,7 @@ public class QueueListenerBeanProcessor implements BeanPostProcessor {
 
 
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
-        Class<?> clazz = bean.getClass();
+        Class<?> clazz = AopUtils.getTargetClass(bean);
         this.queueListenerRegistry.registerListener(clazz,beanName);
         return bean;
 

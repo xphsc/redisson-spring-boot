@@ -17,12 +17,15 @@ package cn.xphsc.redisson.boot.autoconfigure;
 
 import cn.xphsc.redisson.boot.RedissonProperties;
 import cn.xphsc.redisson.core.RedissonTemplate;
-import io.netty.channel.nio.NioEventLoopGroup;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.Codec;
+import org.redisson.config.BaseConfig;
+import org.redisson.config.ClusterServersConfig;
 import org.redisson.config.Config;
+import org.redisson.config.SingleServerConfig;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
@@ -39,6 +42,7 @@ import org.springframework.util.StringUtils;
  * @since 1.0.0
  */
 @Configuration
+@ConditionalOnClass({Redisson.class, RedissonClient.class})
 @AutoConfigureAfter(RedisAutoConfiguration.class)
 @EnableConfigurationProperties(RedissonProperties.class)
 @ConditionalOnProperty(prefix = RedissonProperties.PREFIX,
@@ -46,7 +50,7 @@ import org.springframework.util.StringUtils;
         matchIfMissing=true,
         havingValue = "true")
 public class RedissonAutoConfiguration {
-    private RedissonProperties redissonProperties;
+    private final RedissonProperties redissonProperties;
 
     public RedissonAutoConfiguration(RedissonProperties redissonProperties){
         this.redissonProperties= redissonProperties;
@@ -55,51 +59,97 @@ public class RedissonAutoConfiguration {
     @Bean(destroyMethod = "shutdown")
     @ConditionalOnMissingBean
     public  RedissonClient redisson() throws Exception {
+        return Redisson.create(buildConfig());
+    }
+
+    Config buildConfig() throws Exception {
         Config config = new Config();
         if (redissonProperties.getCluster() != null) {
-            config.useClusterServers().setPassword(redissonProperties.getPassword())
-                    .addNodeAddress(redissonProperties.getCluster().getNodes());
-        }
-        else if (StringUtils.hasText(redissonProperties.getUrl())) {
-            config.useSingleServer().setAddress(redissonProperties.getUrl())
-                    .setDatabase(redissonProperties.getDatabase())
-                    .setPassword(redissonProperties.getPassword());
-        }
-        else {
-            config.useSingleServer().setAddress(redissonProperties.getHost() + ":" + redissonProperties.getPort())
-                    .setDatabase(redissonProperties.getDatabase())
-                    .setPassword(redissonProperties.getPassword());
+            configureCluster(config);
+        } else {
+            configureSingleServer(config);
         }
 
- if(StringUtils.hasText(redissonProperties.getClientName())){
-     config.useSingleServer().setClientName(redissonProperties.getClientName());
- }
-        if(redissonProperties.getSubscriptionConnectionMinimumIdleSize()!=0){
-            config.useSingleServer().setSubscriptionConnectionMinimumIdleSize(redissonProperties.getSubscriptionConnectionMinimumIdleSize());
+        Class<?> codecClass = ClassUtils.forName(redissonProperties.getCodec(), ClassUtils.getDefaultClassLoader());
+        if (!Codec.class.isAssignableFrom(codecClass)) {
+            throw new IllegalArgumentException("Configured codec must implement " + Codec.class.getName());
         }
+        config.setCodec((Codec) codecClass.getDeclaredConstructor().newInstance());
+        return config;
+    }
 
-        config.useSingleServer().setConnectionMinimumIdleSize(redissonProperties.getConnectionMinimumIdleSize())
+    private void configureSingleServer(Config config) {
+        String address = StringUtils.hasText(redissonProperties.getUrl())
+                ? normalizeAddress(redissonProperties.getUrl())
+                : normalizeAddress(redissonProperties.getHost() + ":" + redissonProperties.getPort());
+        SingleServerConfig serverConfig = config.useSingleServer()
+                .setAddress(address)
+                .setDatabase(redissonProperties.getDatabase())
+                .setConnectionMinimumIdleSize(redissonProperties.getConnectionMinimumIdleSize())
                 .setConnectionPoolSize(redissonProperties.getConnectionPoolSize())
-                .setDnsMonitoring(redissonProperties.isDnsMonitoring())
                 .setDnsMonitoringInterval(redissonProperties.getDnsMonitoringInterval())
+                .setSubscriptionConnectionPoolSize(redissonProperties.getSubscriptionConnectionPoolSize());
+        if (redissonProperties.getSubscriptionConnectionMinimumIdleSize() > 0) {
+            serverConfig.setSubscriptionConnectionMinimumIdleSize(
+                    redissonProperties.getSubscriptionConnectionMinimumIdleSize());
+        }
+        configureCommon(serverConfig);
+    }
+
+    private void configureCluster(Config config) {
+        String[] nodes = redissonProperties.getCluster().getNodes();
+        if (nodes == null || nodes.length == 0) {
+            throw new IllegalArgumentException("spring.redis.cluster.nodes must not be empty");
+        }
+        String[] normalizedNodes = new String[nodes.length];
+        for (int i = 0; i < nodes.length; i++) {
+            normalizedNodes[i] = normalizeAddress(nodes[i]);
+        }
+
+        ClusterServersConfig serverConfig = config.useClusterServers()
+                .addNodeAddress(normalizedNodes)
+                .setMasterConnectionMinimumIdleSize(redissonProperties.getConnectionMinimumIdleSize())
+                .setSlaveConnectionMinimumIdleSize(redissonProperties.getConnectionMinimumIdleSize())
+                .setMasterConnectionPoolSize(redissonProperties.getConnectionPoolSize())
+                .setSlaveConnectionPoolSize(redissonProperties.getConnectionPoolSize())
                 .setSubscriptionConnectionPoolSize(redissonProperties.getSubscriptionConnectionPoolSize())
-                .setSubscriptionsPerConnection(redissonProperties.getSubscriptionsPerConnection())
-                .setFailedAttempts(redissonProperties.getFailedAttempts())
+                .setDnsMonitoringInterval(redissonProperties.getDnsMonitoringInterval());
+        if (redissonProperties.getSubscriptionConnectionMinimumIdleSize() > 0) {
+            serverConfig.setSubscriptionConnectionMinimumIdleSize(
+                    redissonProperties.getSubscriptionConnectionMinimumIdleSize());
+        }
+        configureCommon(serverConfig);
+    }
+
+    private void configureCommon(BaseConfig<?> serverConfig) {
+        if (StringUtils.hasText(redissonProperties.getPassword())) {
+            serverConfig.setPassword(redissonProperties.getPassword());
+        }
+        if (StringUtils.hasText(redissonProperties.getClientName())) {
+            serverConfig.setClientName(redissonProperties.getClientName());
+        }
+        serverConfig.setSubscriptionsPerConnection(redissonProperties.getSubscriptionsPerConnection())
                 .setRetryAttempts(redissonProperties.getRetryAttempts())
                 .setRetryInterval(redissonProperties.getRetryInterval())
-                .setReconnectionTimeout(redissonProperties.getReconnectionTimeout())
                 .setTimeout(redissonProperties.getTimeout())
                 .setConnectTimeout(redissonProperties.getConnectTimeout())
-                .setIdleConnectionTimeout(redissonProperties.getIdleConnectionTimeout())
-                .setPingTimeout(redissonProperties.getPingTimeout());
-        Codec codec = (Codec) ClassUtils.forName(redissonProperties.getCodec(), ClassUtils.getDefaultClassLoader()).newInstance();
-        config.setCodec(codec);
-        config.setEventLoopGroup(new NioEventLoopGroup());
-        return Redisson.create(config);
+                .setIdleConnectionTimeout(redissonProperties.getIdleConnectionTimeout());
+    }
+
+    private String normalizeAddress(String address) {
+        if (!StringUtils.hasText(address)) {
+            throw new IllegalArgumentException("Redis address must not be empty");
+        }
+        String value = address.trim();
+        if (value.startsWith("redis://") || value.startsWith("rediss://")) {
+            return value;
+        }
+        return RedissonProperties.rediss_prefix + value;
     }
 
 
     @Bean
+    @ConditionalOnMissingBean
     public RedissonTemplate redissonTemplate(RedissonClient redissonClient) {
         return new RedissonTemplate(redissonClient);
     }

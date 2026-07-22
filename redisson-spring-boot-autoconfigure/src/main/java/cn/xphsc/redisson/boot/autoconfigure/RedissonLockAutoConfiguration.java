@@ -19,18 +19,19 @@ import cn.xphsc.redisson.boot.RedissonLockProperties;
 import cn.xphsc.redisson.boot.RedissonProperties;
 import cn.xphsc.redisson.core.distributedlock.RedissonLockKeyProvider;
 import cn.xphsc.redisson.core.distributedlock.LockInfoProvider;
-import cn.xphsc.redisson.core.distributedlock.advice.LockPointcutAdvisor;
 import cn.xphsc.redisson.core.distributedlock.advice.RedissonLockRegistrar;
 import cn.xphsc.redisson.core.distributedlock.lock.RedissonLockFactory;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.*;
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
+
 
 /**
  * {@link }
@@ -39,7 +40,9 @@ import org.springframework.core.annotation.Order;
  * @since 1.0.0
  */
 @Configuration
-@AutoConfigureAfter(RedisAutoConfiguration.class)
+@ConditionalOnClass(RedissonClient.class)
+@ConditionalOnBean(RedissonClient.class)
+@AutoConfigureAfter({RedisAutoConfiguration.class, RedissonAutoConfiguration.class})
 @EnableConfigurationProperties(RedissonLockProperties.class)
 @Import({RedissonLockRegistrar.class})
 @ConditionalOnProperty(prefix = RedissonProperties.PREFIX+".lock",
@@ -65,6 +68,7 @@ public class RedissonLockAutoConfiguration implements Ordered {
     }
 
     @Bean
+    @ConditionalOnMissingBean(RedissonLockFactory.class)
     public RedissonLockFactory redissonLockFactory(RedissonClient redisson) {
         return new RedissonLockFactory(redisson);
     }

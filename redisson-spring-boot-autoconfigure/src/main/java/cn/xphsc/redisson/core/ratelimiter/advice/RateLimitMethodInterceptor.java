@@ -39,7 +39,7 @@ import java.util.List;
  * @since 1.0.0
  */
 public class RateLimitMethodInterceptor implements MethodInterceptor {
-    private static final Logger logger = LoggerFactory.getLogger(RateLimitMethodInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RateLimitMethodInterceptor.class);
 
     private final RateLimiterHander rateLimiterHander;
     private final RScript rScript;
@@ -59,7 +59,7 @@ public class RateLimitMethodInterceptor implements MethodInterceptor {
         List<Long> results = rScript.eval(RScript.Mode.READ_WRITE, LuaScript.getRateLimiterScript(), RScript.ReturnType.MULTI, keys);
         boolean allowed = results.get(0) == 0L;
         if (!allowed) {
-            logger.info("Trigger current limiting,key:{}", limiterInfo.getKey());
+            LOGGER.info("Trigger current limiting,key:{}", limiterInfo.getKey());
             if (StringUtils.hasLength(rateLimit.fallback())) {
                 return rateLimiterHander.executeFunction(rateLimit.fallback(), methodInvocation.getMethod(),methodInvocation.getThis(),methodInvocation.getArguments());
             }

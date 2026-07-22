@@ -28,7 +28,7 @@ import org.springframework.core.Ordered;
 @ConfigurationProperties(prefix = RedissonLockProperties.PREFIX)
 public class RedissonLockProperties {
 
-    public static final String PREFIX = RedissonProperties.PREFIX+"lock";
+    public static final String PREFIX = RedissonProperties.PREFIX+".lock";
 
     private long waitTime = 60;
     private long leaseTime = 60;

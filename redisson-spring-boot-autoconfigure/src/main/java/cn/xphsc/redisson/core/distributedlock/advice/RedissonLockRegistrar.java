@@ -44,5 +44,4 @@ public class RedissonLockRegistrar implements ImportBeanDefinitionRegistrar  {
         AopConfigUtils.forceAutoProxyCreatorToUseClassProxying(registry);
     }
 
-
 }

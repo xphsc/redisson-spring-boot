@@ -2,17 +2,17 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <artifactId>redisson-spring-boot-starter</artifactId>
-    <groupId>cn.xphsc.boot</groupId>
-    <version>1.0.2</version>
-
     <modelVersion>4.0.0</modelVersion>
-
-
+    <groupId>cn.xphsc.boot</groupId>
+    <artifactId>redisson-spring-boot-starter</artifactId>
+    <version>1.0.6</version>
+    <name>redisson-spring-boot-starter</name>
+    <description>redisson Spring Boot starter 扩展组件</description>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring-boot.version>1.5.3.RELEASE</spring-boot.version>
-        <redisson-spring-boot-autoconfigure.version>1.0.2</redisson-spring-boot-autoconfigure.version>
+        <spring-boot.version>2.0.0.RELEASE</spring-boot.version>
+        <redisson.version>3.27.1</redisson.version>
+        <redisson-spring-boot-autoconfigure.version>1.0.6</redisson-spring-boot-autoconfigure.version>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
     </properties>
@@ -27,18 +27,18 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
             <distribution>repo</distribution>
         </license>
-    </licenses><developers>
-    <developer>
-        <name>xphsc</name>
-        <email>xiongpeih@163.com</email>
-    </developer>
-</developers>
+    </licenses>
+    <developers>
+        <developer>
+            <name>xphsc</name>
+            <email>xiongpeih@163.com</email>
+        </developer>
+    </developers>
     <scm>
         <connection>scm:git@github.com:xphsc/redisson-spring-boot.git</connection>
         <developerConnection>scm:git@github.com:xphsc/redisson-spring-boot.git</developerConnection>
         <url>git@github.com:xphsc/redisson-spring-boot.git</url>
     </scm>
-
 
     <dependencies>
         <dependency>
@@ -50,6 +50,11 @@
             <groupId>cn.xphsc.boot</groupId>
             <artifactId>redisson-spring-boot-autoconfigure</artifactId>
             <version>${redisson-spring-boot-autoconfigure.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson</artifactId>
+            <version>${redisson.version}</version>
         </dependency>
     </dependencies>
 

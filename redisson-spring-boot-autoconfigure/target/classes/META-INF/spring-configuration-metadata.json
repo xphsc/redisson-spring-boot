@@ -1,0 +1,181 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "name": "spring.redis",
+      "type": "cn.xphsc.redisson.boot.RedissonProperties"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "name": "spring.redis.cluster",
+      "sourceMethod": "getCluster()",
+      "type": "cn.xphsc.redisson.boot.RedissonProperties$ClusterServer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonLockProperties",
+      "name": "spring.redis.lock",
+      "type": "cn.xphsc.redisson.boot.RedissonLockProperties"
+    }
+  ],
+  "properties": [
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "name": "spring.redis.client-name",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties$ClusterServer",
+      "name": "spring.redis.cluster.nodes",
+      "type": "java.lang.String[]"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": "org.redisson.codec.JsonJacksonCodec",
+      "name": "spring.redis.codec",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 10000,
+      "name": "spring.redis.connect-timeout",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 10,
+      "name": "spring.redis.connection-minimum-idle-size",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 50,
+      "name": "spring.redis.connection-pool-size",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 0,
+      "name": "spring.redis.database",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": false,
+      "name": "spring.redis.dns-monitoring",
+      "type": "java.lang.Boolean"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 5000,
+      "name": "spring.redis.dns-monitoring-interval",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 3,
+      "name": "spring.redis.failed-attempts",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": "localhost",
+      "name": "spring.redis.host",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 10000,
+      "name": "spring.redis.idle-connection-timeout",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonLockProperties",
+      "defaultValue": 60,
+      "name": "spring.redis.lock.lease-time",
+      "type": "java.lang.Long"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonLockProperties",
+      "name": "spring.redis.lock.lock-prefix",
+      "description": "锁前缀 默认为服务名 可通过此方式覆盖",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonLockProperties",
+      "defaultValue": 0,
+      "name": "spring.redis.lock.order",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonLockProperties",
+      "defaultValue": 60,
+      "name": "spring.redis.lock.wait-time",
+      "type": "java.lang.Long"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "name": "spring.redis.password",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 1000,
+      "name": "spring.redis.ping-timeout",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 6379,
+      "name": "spring.redis.port",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 3000,
+      "name": "spring.redis.reconnection-timeout",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 3,
+      "name": "spring.redis.retry-attempts",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 1500,
+      "name": "spring.redis.retry-interval",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 0,
+      "name": "spring.redis.subscription-connection-minimum-idle-size",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 50,
+      "name": "spring.redis.subscription-connection-pool-size",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 5,
+      "name": "spring.redis.subscriptions-per-connection",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "defaultValue": 3000,
+      "name": "spring.redis.timeout",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "cn.xphsc.redisson.boot.RedissonProperties",
+      "name": "spring.redis.url",
+      "type": "java.lang.String"
+    }
+  ]
+}

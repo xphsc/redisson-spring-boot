@@ -6,13 +6,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>cn.xphsc.boot</groupId>
     <artifactId>redisson-spring-boot-example</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.6</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
-        <spring-boot.version>1.5.3.RELEASE</spring-boot.version>
-        <redisson.version>3.2.0</redisson.version>
+        <spring-boot.version>2.7.10</spring-boot.version>
+        <redisson.version>3.27.1</redisson.version>
         <jackson-databind.version>2.12.3</jackson-databind.version>
     </properties>
     <dependencies>
@@ -65,7 +65,11 @@
             <artifactId>fastjson</artifactId>
             <version>1.2.78</version>
         </dependency>
-
+        <dependency>
+            <groupId>cn.xphsc.boot</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>1.0.6</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

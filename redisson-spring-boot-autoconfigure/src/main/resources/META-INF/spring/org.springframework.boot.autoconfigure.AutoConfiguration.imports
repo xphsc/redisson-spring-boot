@@ -3,3 +3,4 @@ cn.xphsc.redisson.boot.autoconfigure.RedissonLockAutoConfiguration
 cn.xphsc.redisson.boot.autoconfigure.DelayQueueAutoConfiguration
 cn.xphsc.redisson.boot.autoconfigure.RedissonQueueAutoConfiguration
 cn.xphsc.redisson.boot.autoconfigure.RateLimiterAutoConfiguration
+cn.xphsc.redisson.boot.autoconfigure.BloomFilterConfiguration

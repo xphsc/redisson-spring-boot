@@ -29,7 +29,7 @@ import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -42,12 +42,20 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class QueueListenerRegistry implements ApplicationContextAware, SmartInitializingSingleton {
     private ApplicationContext applicationContext;
-    private static final Map<String, List<RedisListenerMethod>> redisListeners = new HashMap<>();
-    private AtomicLong counter = new AtomicLong(0);
+    private final Map<String, List<RedisListenerMethod>> redisListeners = new LinkedHashMap<>();
+    private final AtomicLong counter = new AtomicLong(0);
     private final RedissonClient redissonClient;
-    String queueName;
+    private final RedisListenerErrorHandler errorHandler;
+
     public QueueListenerRegistry(RedissonClient redissonClient) {
+        this(redissonClient, new LoggingRedisListenerErrorHandler());
+    }
+
+    public QueueListenerRegistry(RedissonClient redissonClient,
+                                 RedisListenerErrorHandler errorHandler) {
         this.redissonClient = redissonClient;
+        this.errorHandler = errorHandler != null
+                ? errorHandler : new LoggingRedisListenerErrorHandler();
     }
 
 
@@ -59,9 +67,10 @@ public class QueueListenerRegistry implements ApplicationContextAware, SmartInit
             if (null != annotationAttributes) {
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 if (parameterTypes.length == 1) {
-                    queueName = (String) annotationAttributes.get("queueName");
+                    String queueName = (String) annotationAttributes.get("queueName");
                     Type[] genericParameterTypes = method.getGenericParameterTypes();
                     RedisListenerMethod rlm = new RedisListenerMethod();
+                    ReflectionUtils.makeAccessible(method);
                     rlm.setBeanName(beanName);
                     rlm.setTargetMethod(method);
                     rlm.setMethodParameterClassName(parameterTypes[0].getName());
@@ -72,7 +81,7 @@ public class QueueListenerRegistry implements ApplicationContextAware, SmartInit
                     }
                     redisListeners.get(queueName).add(rlm);
                 } else {
-                    throw new RuntimeException("有@RedissonQueueListener注解的方法有且仅能包含一个参数");
+                    throw new RuntimeException("Methods annotated with @RedissonQueueListener have and can only contain one parameter");
                 }
             }
         }
@@ -80,12 +89,8 @@ public class QueueListenerRegistry implements ApplicationContextAware, SmartInit
 
     @Override
     public void afterSingletonsInstantiated() {
-            redisListeners.forEach(this::registerContainer);
+        redisListeners.forEach(this::registerContainer);
     }
-
-
-
-
 
 
 
@@ -97,6 +102,8 @@ public class QueueListenerRegistry implements ApplicationContextAware, SmartInit
             beanDefinitionBuilder.addPropertyValue("topic",redissonClient.getTopic(topic));
             beanDefinitionBuilder.addPropertyValue("applicationContext", this.applicationContext);
             beanDefinitionBuilder.addPropertyValue("redisListenerMethods", redisListenerMethods);
+            beanDefinitionBuilder.addPropertyValue("queueName", topic);
+            beanDefinitionBuilder.addPropertyValue("errorHandler", errorHandler);
             genericApplicationContext.registerBeanDefinition(containerBeanName, beanDefinitionBuilder.getBeanDefinition());
            QueueListenerContainer container = genericApplicationContext.getBean(containerBeanName,
                     QueueListenerContainer.class);

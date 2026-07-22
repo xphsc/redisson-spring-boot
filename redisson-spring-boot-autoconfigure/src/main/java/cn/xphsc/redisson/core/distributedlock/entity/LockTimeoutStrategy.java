@@ -81,6 +81,7 @@ public enum LockTimeoutStrategy implements LockTimeoutHandler {
                     TimeUnit.MILLISECONDS.sleep(interval);
                     interval <<= 1;
                 } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
                     throw new RedissonLockTimeoutException("Failed to acquire Lock", e);
                 }
             }

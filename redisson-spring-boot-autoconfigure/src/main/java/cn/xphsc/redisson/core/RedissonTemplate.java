@@ -17,10 +17,12 @@ package cn.xphsc.redisson.core;
 
 
 import org.redisson.api.*;
+import org.redisson.config.Config;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -41,7 +43,13 @@ public class RedissonTemplate {
     public RedissonClient redissonClient() {
         return redissonClient;
     }
-
+    public  NameMapper getNameMapper() {
+        Config config = redissonClient.getConfig();
+        if (config.isClusterConfig()) {
+            return config.useClusterServers().getNameMapper();
+        }
+        return config.useSingleServer().getNameMapper();
+    }
     /**
      * 获取对象值
      */
@@ -115,9 +123,10 @@ public class RedissonTemplate {
      * @param time 缓存时间,单位毫秒 -1永久缓存
      */
     public void setMapValues(String name, Map value, Long time){
+        validateExpiration(time);
         RMap map = redissonClient.getMap(name);
-            map.expire(time, TimeUnit.MILLISECONDS);
-            map.putAll(value);
+        map.putAll(value);
+        applyExpiration(map, time);
     }
 
 
@@ -134,9 +143,10 @@ public class RedissonTemplate {
      * @param time 缓存时间,单位毫秒 -1永久缓存
      */
     public void setListValues(String name, List listValue, Long time) {
+        validateExpiration(time);
         RList list = redissonClient.getList(name);
-            list.expire(time, TimeUnit.MILLISECONDS);
-            list.addAll(listValue);
+        list.addAll(listValue);
+        applyExpiration(list, time);
     }
     /**
      * 获取set集合
@@ -153,11 +163,26 @@ public class RedissonTemplate {
      * @param time 缓存时间,单位毫秒 -1永久缓存
      */
     public void setSetValues(String name, Set value, Long time){
+        validateExpiration(time);
         RSet set = redissonClient.getSet(name);
-        if(time!=-1){
-            set.expire(time, TimeUnit.MILLISECONDS);
-        }
         set.addAll(value);
+        applyExpiration(set, time);
+    }
+
+    private void applyExpiration(RExpirable expirable, Long time) {
+        validateExpiration(time);
+        if (time == -1L) {
+            expirable.clearExpire();
+        } else {
+            expirable.expire(time, TimeUnit.MILLISECONDS);
+        }
+    }
+
+    private void validateExpiration(Long time) {
+        Objects.requireNonNull(time, "time must not be null");
+        if (time < -1L) {
+            throw new IllegalArgumentException("time must be -1 or greater");
+        }
     }
     /**
      * 获取输出流
@@ -179,19 +204,31 @@ public class RedissonTemplate {
      * 获取输入流
      * @param name
      */
-    public InputStream getValue(String name,OutputStream stream) {
+    public void copyTo(String name, OutputStream stream) {
+        Objects.requireNonNull(stream, "stream must not be null");
         try {
             RBinaryStream binaryStream = redissonClient.getBinaryStream(name);
-            InputStream inputStream = binaryStream.getInputStream();
-            byte[] buff=new byte[1024];
-            int len;
-            while ((len=inputStream.read(buff))!=-1){
-                stream.write(buff,0,len);
+            try (InputStream inputStream = binaryStream.getInputStream()) {
+                byte[] buff = new byte[1024];
+                int len;
+                while ((len = inputStream.read(buff)) != -1) {
+                    stream.write(buff, 0, len);
+                }
             }
-            return binaryStream.getInputStream();
+            stream.flush();
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * @deprecated use {@link #copyTo(String, OutputStream)}. This compatibility
+     * method no longer returns a second unowned input stream.
+     */
+    @Deprecated
+    public InputStream getValue(String name, OutputStream stream) {
+        copyTo(name, stream);
+        return null;
     }
 
     /**
@@ -208,14 +245,16 @@ public class RedissonTemplate {
      * @param value 值
      */
     public void setValue(String name, InputStream value) {
+        Objects.requireNonNull(value, "value must not be null");
         try {
             RBinaryStream binaryStream = redissonClient.getBinaryStream(name);
             binaryStream.delete();
-            OutputStream outputStream = binaryStream.getOutputStream();
-            byte[] buff = new byte[1024];
-            int len;
-            while ((len=value.read(buff))!=-1){
-                outputStream.write(buff,0,len);
+            try (OutputStream outputStream = binaryStream.getOutputStream()) {
+                byte[] buff = new byte[1024];
+                int len;
+                while ((len = value.read(buff)) != -1) {
+                    outputStream.write(buff, 0, len);
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -280,12 +319,21 @@ public class RedissonTemplate {
 
 
     public <V> RSetCache<V> setCache(String name) {
-        RSetCache<V> rSortedSet = redissonClient.getSetCache( name);
-        return rSortedSet;
+        RSetCache<V> rSetCache = redissonClient.getSetCache( name);
+        return rSetCache;
     }
 
     public <V> RGeo<V> geo(String name) {
         RGeo<V> rGeo = redissonClient.getGeo( name);
         return rGeo;
+    }
+
+
+    /**
+     * 检查redis中是否存在key
+     */
+    public  Boolean hasKey(String key) {
+        RKeys rKeys = redissonClient.getKeys();
+        return rKeys.countExists(getNameMapper().map(key)) > 0;
     }
 }

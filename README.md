@@ -15,7 +15,7 @@ redisson  Spring Boot低耦合集成的高度扩展组件
 <dependency>
   <groupId>cn.xphsc.boot</groupId>
   <artifactId>redisson-spring-boot-starter</artifactId>
-     <version>1.0.5</version>
+     <version>1.0.6</version>
 </dependency>
 
 ~~~
@@ -28,6 +28,28 @@ spring:
   host: localhost
   password: xxx
   database: 2
+  queue:
+      enabled: true
+      concurrency: 4
+      capacity: 100
+      backpressure: BLOCK
+      retry-attempts: 3
+      retry-interval: 500
+      dead-letter-queue: "{queue}.dlq"
+      shutdown-timeout: 30000
+  delayqueue:
+      enabled: true
+      concurrency: 2
+      capacity: 50
+      backpressure: BLOCK
+      retry-attempts: 2
+      retry-interval: 1000
+      dead-letter-queue: "{queue}.dlq"
+      shutdown-timeout: 30000
+  lock:
+      enabled: true
+      wait-time: 3
+      lease-time: 10
 ~~~
 ####配置说明
 参数 |说明

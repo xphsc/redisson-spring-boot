@@ -20,8 +20,16 @@ package cn.xphsc.redisson.boot.autoconfigure;
 import cn.xphsc.redisson.boot.RedissonProperties;
 import cn.xphsc.redisson.core.queue.QueueListenerBeanProcessor;
 import cn.xphsc.redisson.core.queue.QueueListenerRegistry;
+import cn.xphsc.redisson.core.queue.LoggingRedisListenerErrorHandler;
+import cn.xphsc.redisson.core.queue.RedisListenerErrorHandler;
+import cn.xphsc.redisson.core.queue.RedissonBlockingQueueTemplate;
 import cn.xphsc.redisson.core.queue.RedissonQueueTemplate;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,26 +41,42 @@ import org.springframework.context.annotation.Configuration;
  * @since 1.0.0
  */
 @Configuration
+@ConditionalOnClass(RedissonClient.class)
+@ConditionalOnBean(RedissonClient.class)
+@AutoConfigureAfter(RedissonAutoConfiguration.class)
 @ConditionalOnProperty(prefix = RedissonProperties.PREFIX+".queue",
         name = "enabled",
         matchIfMissing=true,
         havingValue = "true")
 public class RedissonQueueAutoConfiguration {
 
-
     @Bean
-    public QueueListenerRegistry queueListenerRegistry(RedissonClient redissonClient) {
-        return new QueueListenerRegistry(redissonClient);
+    @ConditionalOnMissingBean(QueueListenerRegistry.class)
+    public QueueListenerRegistry queueListenerRegistry(RedissonClient redissonClient,
+                                                       ObjectProvider<RedisListenerErrorHandler> errorHandlerProvider) {
+        RedisListenerErrorHandler errorHandler = errorHandlerProvider.getIfAvailable();
+        if (errorHandler == null) {
+            errorHandler = new LoggingRedisListenerErrorHandler();
+        }
+        return new QueueListenerRegistry(redissonClient, errorHandler);
     }
 
 
     @Bean
+    @ConditionalOnMissingBean(QueueListenerBeanProcessor.class)
     public QueueListenerBeanProcessor queueListenerBeanProcessor(QueueListenerRegistry listenerRegistry) {
         return new QueueListenerBeanProcessor(listenerRegistry);
     }
 
     @Bean
+    @ConditionalOnMissingBean(RedissonQueueTemplate.class)
     public RedissonQueueTemplate redissonQueueTemplate(RedissonClient redissonClient) {
         return new RedissonQueueTemplate(redissonClient);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(RedissonBlockingQueueTemplate.class)
+    public RedissonBlockingQueueTemplate redissonBlockingQueueTemplate(RedissonClient redissonClient) {
+        return new RedissonBlockingQueueTemplate(redissonClient);
     }
 }

@@ -17,10 +17,11 @@ package cn.xphsc.redisson.boot.autoconfigure;
 
 import cn.xphsc.redisson.boot.RedissonProperties;
 import cn.xphsc.redisson.core.ratelimiter.RatelimitProvider;
-import cn.xphsc.redisson.core.ratelimiter.RateLimiterHander;;
-//import cn.xphsc.redisson.core.ratelimiter.advice.RateLimitAdviceHandler;
+import cn.xphsc.redisson.core.ratelimiter.RateLimiterHander;
 import cn.xphsc.redisson.core.ratelimiter.advice.RateLimitRegistrar;
+import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -37,8 +38,9 @@ import org.springframework.core.Ordered;
  * @since 1.0.0
  */
 @Configuration
-@ConditionalOnClass({RateLimiterHander.class,RatelimitProvider.class })
-@AutoConfigureAfter({RedisAutoConfiguration.class})
+@ConditionalOnClass({RedissonClient.class, RateLimiterHander.class, RatelimitProvider.class})
+@ConditionalOnBean(RedissonClient.class)
+@AutoConfigureAfter({RedisAutoConfiguration.class, RedissonAutoConfiguration.class})
 @ConditionalOnProperty(prefix = RedissonProperties.PREFIX+".ratelimit",
         name = "enabled",
         matchIfMissing=true,

@@ -17,8 +17,8 @@ package cn.xphsc.redisson.core.distributedlock.advice;
 
 import cn.xphsc.redisson.annotation.RedissonLock;
 import cn.xphsc.redisson.core.distributedlock.LockInfoProvider;
-import cn.xphsc.redisson.core.distributedlock.entity.LockBuilder;
 import cn.xphsc.redisson.core.distributedlock.entity.LockInfo;
+import cn.xphsc.redisson.core.distributedlock.entity.LockTimeoutStrategy;
 import cn.xphsc.redisson.core.distributedlock.lock.Lock;
 import cn.xphsc.redisson.core.distributedlock.lock.RedissonLockFactory;
 import cn.xphsc.redisson.core.distributedlock.handler.RedissonLockInvocationException;
@@ -45,13 +45,10 @@ public LockMethodInterceptor(ApplicationContext context){
 }
 
 
-    private ThreadLocal<Lock> currentThreadLock = new ThreadLocal<Lock>();
-    private ThreadLocal<LockBuilder> currentThreadLockRes = new ThreadLocal<LockBuilder>();
     @Override
     public Object invoke(MethodInvocation methodInvocation) throws Throwable {
         RedissonLock redissonLock =methodInvocation.getMethod().getAnnotation(RedissonLock.class);
         LockInfo lockInfo = lockInfoProvider.get(methodInvocation.getMethod(),methodInvocation.getThis(),methodInvocation.getArguments(), redissonLock);
-        currentThreadLockRes.set(new LockBuilder(lockInfo, false));
         Lock lock = lockFactory.getLock(lockInfo);
         boolean lockRes = lock.acquire();
 
@@ -60,18 +57,19 @@ public LockMethodInterceptor(ApplicationContext context){
                 return handleCustomLockTimeout(redissonLock.customLockTimeoutStrategy(), methodInvocation);
             } else {
                 redissonLock.lockTimeoutStrategy().handle(lockInfo, lock);
-                return null;
+                if (redissonLock.lockTimeoutStrategy() == LockTimeoutStrategy.NO_OPERATION) {
+                    return methodInvocation.proceed();
+                }
+                // KEEP_ACQUIRE returns only after the lock has been acquired.
+                // Continue through the normal finally block so it is released.
             }
         }
 
-        currentThreadLock.set(lock);
-        currentThreadLockRes.get().setRes(true);
         Object  result;
         try {
               result=methodInvocation.proceed();
         }finally {
-            releaseLock(redissonLock,methodInvocation);
-            clean();
+            releaseLock(redissonLock, methodInvocation, lockInfo, lock);
         }
 
         return result;
@@ -108,15 +106,11 @@ public LockMethodInterceptor(ApplicationContext context){
     /**
      * 释放锁
      */
-    private void releaseLock(RedissonLock redissonLock, MethodInvocation methodInvocation) throws Throwable {
-        LockBuilder lockRes = currentThreadLockRes.get();
-        if (lockRes.getRes()) {
-            boolean releaseRes = currentThreadLock.get().release();
-            // avoid release lock twice when exception happens below
-            lockRes.setRes(false);
-            if (!releaseRes) {
-                handleReleaseTimeout(redissonLock, lockRes.getLockInfo(), methodInvocation);
-            }
+    private void releaseLock(RedissonLock redissonLock, MethodInvocation methodInvocation,
+                             LockInfo lockInfo, Lock lock) throws Throwable {
+        boolean releaseRes = lock.release();
+        if (!releaseRes) {
+            handleReleaseTimeout(redissonLock, lockInfo, methodInvocation);
         }
     }
 
@@ -158,9 +152,4 @@ public LockMethodInterceptor(ApplicationContext context){
         }
     }
 
-    private void clean() {
-
-        currentThreadLockRes.remove();
-        currentThreadLock.remove();
-    }
 }

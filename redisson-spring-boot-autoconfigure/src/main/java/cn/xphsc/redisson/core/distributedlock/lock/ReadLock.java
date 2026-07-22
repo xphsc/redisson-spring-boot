@@ -16,9 +16,9 @@
 package cn.xphsc.redisson.core.distributedlock.lock;
 
 import cn.xphsc.redisson.core.distributedlock.entity.LockInfo;
+import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 
@@ -47,18 +47,19 @@ public class ReadLock implements Lock {
             rLock = redissonClient.getReadWriteLock(lockInfo.getName());
             return rLock.readLock().tryLock(lockInfo.getWaitTime(), lockInfo.getLeaseTime(), TimeUnit.SECONDS);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             return false;
         }
     }
 
     @Override
     public boolean release() {
-        if (rLock.readLock().isHeldByCurrentThread()) {
+        RLock readLock = rLock != null ? rLock.readLock() : null;
+        if (readLock != null && readLock.isHeldByCurrentThread()) {
             try {
-                return rLock.readLock().forceUnlockAsync().get();
-            } catch (InterruptedException e) {
-                return false;
-            } catch (ExecutionException e) {
+                readLock.unlock();
+                return true;
+            } catch (RuntimeException e) {
                 return false;
             }
         }

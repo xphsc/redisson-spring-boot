@@ -19,6 +19,7 @@ package cn.xphsc.redisson.boot;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 
+
 /**
  * {@link }
  * @author <a href="xiongpeih@163.com">huipei.x</a>
@@ -28,7 +29,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = RedissonProperties.PREFIX)
 public class RedissonProperties {
     public static final String PREFIX = "spring.redis";
-
+    public static final String rediss_prefix = "redis://";
     private String url;
     private String host = "localhost";
     private Integer port = 6379;

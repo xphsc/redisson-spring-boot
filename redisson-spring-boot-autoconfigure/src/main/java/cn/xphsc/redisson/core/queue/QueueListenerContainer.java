@@ -21,6 +21,8 @@ import org.redisson.api.listener.MessageListener;
 import org.slf4j.MDC;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.SmartLifecycle;
+import org.springframework.util.ReflectionUtils;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.UUID;
@@ -37,56 +39,87 @@ import java.util.concurrent.TimeUnit;
  */
 @SuppressWarnings("ALL")
 public class QueueListenerContainer implements SmartLifecycle {
+    private static final RedisListenerErrorHandler FALLBACK_ERROR_HANDLER =
+            new LoggingRedisListenerErrorHandler();
+
     private RTopic topic;
-    private boolean running;
+    private volatile boolean running;
     private ExecutorService threadPool;
     private volatile boolean stop = false;
+    private volatile int listenerId = -1;
     private String queueName;
     private List<RedisListenerMethod> redisListenerMethods;
     private ApplicationContext applicationContext;
+    private RedisListenerErrorHandler errorHandler = new LoggingRedisListenerErrorHandler();
+
     @Override
-    public void start() {
-        threadPool = new ThreadPoolExecutor(1,
-                Runtime.getRuntime().availableProcessors(),
-                30,
-                TimeUnit.MINUTES,
-                new SynchronousQueue(),
-                new QueueThreadFactory(queueName()),
-                new ThreadPoolExecutor.CallerRunsPolicy()
-        );
-        startListener();
-        setRunning(true);
-    }
-
-
-    private void startListener() {
-        new Thread(() -> {
-                try {
-                    topic.addListener(new MessageListener() {
-                        @Override
-                        public void onMessage(String topic, Object o) {
-                            if (o != null) {
-                                threadPool.submit(() -> handleMethodMessage(o));
-                            }
-                        }
-                    });
-                } catch (Exception e) {
-            }
-        }).start();
+    public synchronized void start() {
+        if (running) {
+            return;
+        }
+        if (topic == null) {
+            throw new IllegalStateException("Redis topic must be configured before starting listener " + queueName);
+        }
+        stop = false;
+        if (threadPool == null || threadPool.isShutdown()) {
+            threadPool = new ThreadPoolExecutor(1,
+                    Runtime.getRuntime().availableProcessors(),
+                    30,
+                    TimeUnit.MINUTES,
+                    new SynchronousQueue(),
+                    new QueueThreadFactory(queueName()),
+                    new ThreadPoolExecutor.CallerRunsPolicy()
+            );
+        }
+        try {
+            listenerId = topic.addListener(Object.class, new MessageListener<Object>() {
+                @Override
+                public void onMessage(CharSequence channel, Object message) {
+                    if (message == null || stop) {
+                        return;
+                    }
+                    try {
+                        threadPool.submit(() -> handleMethodMessage(message));
+                    } catch (RuntimeException e) {
+                        handleError(message, e);
+                    }
+                }
+            });
+            running = true;
+        } catch (RuntimeException e) {
+            threadPool.shutdownNow();
+            handleError(null, e);
+            throw e;
+        }
     }
 
     private void handleMethodMessage(Object message) {
+        MDC.put("UUID", UUID.randomUUID().toString());
         try {
-            MDC.put("UUID", UUID.randomUUID().toString());
-            if(!redisListenerMethods.isEmpty()&&redisListenerMethods.size()>0) {
+            if (redisListenerMethods != null) {
                 for (RedisListenerMethod redisListenerMethod : redisListenerMethods) {
                     Method targetMethod = redisListenerMethod.getTargetMethod();
-                    targetMethod.invoke(redisListenerMethod.getBean(applicationContext), message);
+                    try {
+                        ReflectionUtils.makeAccessible(targetMethod);
+                        targetMethod.invoke(redisListenerMethod.getBean(applicationContext), message);
+                    } catch (InvocationTargetException e) {
+                        handleError(message, e.getTargetException());
+                    } catch (Throwable e) {
+                        handleError(message, e);
+                    }
                 }
             }
-        } catch (Exception e) {
-        }finally {
+        } finally {
             MDC.remove("UUID");
+        }
+    }
+
+    private void handleError(Object message, Throwable error) {
+        try {
+            errorHandler.handle(queueName, message, error);
+        } catch (Throwable handlerError) {
+            handlerError.addSuppressed(error);
+            FALLBACK_ERROR_HANDLER.handle(queueName, message, handlerError);
         }
     }
 
@@ -109,19 +142,27 @@ public class QueueListenerContainer implements SmartLifecycle {
     }
 
     @Override
-    public void stop() {
+    public synchronized void stop() {
         stop = true;
+        if (topic != null && listenerId >= 0) {
+            try {
+                topic.removeListener(listenerId);
+            } catch (RuntimeException e) {
+                handleError(null, e);
+            } finally {
+                listenerId = -1;
+            }
+        }
+        if (threadPool != null) {
+            threadPool.shutdownNow();
+        }
+        running = false;
     }
 
     @Override
     public boolean isRunning() {
         return running;
     }
-
-    private void setRunning(boolean running) {
-        this.running = running;
-    }
-
 
     public String queueName() {
         return this.queueName;
@@ -147,6 +188,16 @@ public class QueueListenerContainer implements SmartLifecycle {
         this.applicationContext = applicationContext;
     }
 
+    public RedisListenerErrorHandler getErrorHandler() {
+        return errorHandler;
+    }
+
+    public void setErrorHandler(RedisListenerErrorHandler errorHandler) {
+        if (errorHandler != null) {
+            this.errorHandler = errorHandler;
+        }
+    }
+
     public RTopic getTopic() {
         return topic;
     }
@@ -163,10 +214,12 @@ public class QueueListenerContainer implements SmartLifecycle {
         return false;
     }
 
-
-
     public void stop(Runnable runnable) {
-
+        try {
+            stop();
+        } finally {
+            runnable.run();
+        }
     }
 
 

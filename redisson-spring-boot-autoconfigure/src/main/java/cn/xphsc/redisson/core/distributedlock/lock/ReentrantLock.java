@@ -18,7 +18,6 @@ package cn.xphsc.redisson.core.distributedlock.lock;
 import cn.xphsc.redisson.core.distributedlock.entity.LockInfo;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 
@@ -47,18 +46,18 @@ public class ReentrantLock implements Lock {
             rLock = redissonClient.getLock(lockInfo.getName());
             return rLock.tryLock(lockInfo.getWaitTime(), lockInfo.getLeaseTime(), TimeUnit.SECONDS);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             return false;
         }
     }
 
     @Override
     public boolean release() {
-        if (rLock.isHeldByCurrentThread()) {
+        if (rLock != null && rLock.isHeldByCurrentThread()) {
             try {
-                return rLock.forceUnlockAsync().get();
-            } catch (InterruptedException e) {
-                return false;
-            } catch (ExecutionException e) {
+                rLock.unlock();
+                return true;
+            } catch (RuntimeException e) {
                 return false;
             }
         }
